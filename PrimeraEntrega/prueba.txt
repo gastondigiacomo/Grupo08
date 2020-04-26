@@ -1,0 +1,20 @@
+DEFVAR
+    float : b;c;r;a
+    int : asda
+    float: pepe
+    string : a2a;ssd;d
+ENDDEF
+***/AS
+  ***/ /***
+SD/***
+b = 99999999999.0
+d = "4.5"
+if(a==b){
+    a = b * 9999
+    b = 4.2
+}
+while(!a==c){
+    b = b + 4
+}
+b-=5
+between(a,[b;b+4])
