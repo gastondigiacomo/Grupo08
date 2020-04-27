@@ -31,7 +31,7 @@ FILE  *yyin;
 %token OP_L_GT OP_L_LT OP_L_GET OP_L_LET OP_L_E OP_L_NE OP_L_O OP_L_A OP_L_N
 
 //PALABRAS RESERVADAS
-%token WHILE IF BETWEEN DEFVAR ENDDEF
+%token WHILE IF BETWEEN DEFVAR ENDDEF GET DISPLAY
 
 //PARENTESIS Y LLAVES Y CORCHETES
 %token L_A L_C P_A P_C C_A C_C
@@ -120,6 +120,45 @@ sentencia:
       {
             printf("BETWEEN\n");
       }
+      |salida
+      |entrada
+      ;
+
+salida:
+      DISPLAY ENTERO
+      {
+            //guardar_cte_int($<int_val>2);
+            printf("DISPLAY %d\n",$<int_val>2);
+      }
+      |DISPLAY REAL
+      {
+            //guardar_cte_float($<real_val>2);
+            printf("DISPLAY %f\n",$<real_val>2);
+      }
+      |DISPLAY CADENA
+      {
+            //guardar_cte_string($<str_val>2);
+            printf("DISPLAY %s\n",$<str_val>2);
+      }
+      |DISPLAY ID
+      {
+            if(!existe_simbolo($<str_val>2)){
+                  printf("NO SE DECLARO LA VARIABLE - %s - EN LA SECCION DE DEFINICIONES\n",$<str_val>2);
+                  yyerror();
+            }
+            printf("DISPLAY %s\n",$<str_val>2);
+      }
+      ;
+
+entrada:
+      GET ID
+      {
+            if(!existe_simbolo($<str_val>2)){
+                  printf("NO SE DECLARO LA VARIABLE - %s - EN LA SECCION DE DEFINICIONES\n",$<str_val>2);
+                  yyerror();
+            }
+            printf("GET %s\n",$<str_val>2 );
+      }
       ;
 
 between:
@@ -130,12 +169,12 @@ asignacion:
       ID ASIG expresion
       {
             switch(verificar_asignacion($<str_val>1)){
-                  case 1:   printf("NO SE DECLARO LA VARIABLE - %s - EN LA SECCION DE DEFINICIONES\n",$<str_val>1);
+                  case 1:     printf("NO SE DECLARO LA VARIABLE - %s - EN LA SECCION DE DEFINICIONES\n",$<str_val>1);
                               yyerror();
                               break;
-                  case 2:   printf("ASIGNACION EXITOSA!\n");
+                  case 2:     printf("ASIGNACION EXITOSA!\n");
                               break;
-                  case 3:   printf("ERROR DE SINTAXIS, ASIGNACION ERRONEA, TIPOS DE DATOS INCORRECTOS.\n"); 
+                  case 3:     printf("ERROR DE SINTAXIS, ASIGNACION ERRONEA, TIPOS DE DATOS INCORRECTOS.\n"); 
                               printf("USTED ESTA INTENTANDO ASIGNAR UNA CONSTANTE %s A UNA VARIABLE %s \n", ultima_expresion, simbolo_busqueda.tipo_dato);
                               yyerror();
                               break;

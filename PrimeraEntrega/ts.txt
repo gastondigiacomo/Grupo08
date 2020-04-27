@@ -1,1 +1,22 @@
 NOMBRE|TIPODATO|VALOR|LONGITUD
+b|float|-|-
+c|float|-|-
+r|float|-|-
+a|float|-|-
+asda|int|-|-
+var1|int|-|-
+pepe|float|-|-
+a2a|string|-|-
+ssd|string|-|-
+d|string|-|-
+_9999999.000000|float|9999999.000000|-
+_4.5|string|4.5|3
+_10|int|10|-
+_OK|string|OK|2
+_estoy mostrandome por pantalla|string|estoy mostrandome por pantalla|30
+_9999|int|9999|-
+_4.200000|float|4.200000|-
+_4|int|4|-
+_0|int|0|-
+_1|int|1|-
+_5|int|5|-

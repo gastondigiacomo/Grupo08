@@ -20,17 +20,14 @@
 void crearTabla();
 int crear_lista_variable(char * variable);
 void guardar_variables_ts();
-void guardar_cte_int(int valor);
-void guardar_cte_string(char * valor);
-void guardar_cte_float(float valor);
+int guardar_cte_int(int valor);
+int guardar_cte_string(char * valor);
+int guardar_cte_float(float valor);
 void guardar_ts();
 int existe_simbolo(char * comp);
 int verificar_asignacion(char * valor);
 
 //funciones complementarias
-void reverse(char* str, int len);
-int intToStr(int x, char str[], int d);
-void ftoa(float n, char* res, int afterpoint);
 char* concat(const char *s1, const char *s2);
 
 typedef struct {
@@ -99,25 +96,26 @@ void crearTabla(){
   fclose(file);
 }
 
-void guardar_cte_int(int valor) {
+int guardar_cte_int(int valor) {
       char  nombre_variable[] = "_";
       char constante_string[100];
       sprintf(constante_string,"%d",valor);
 
       char* nombre_constante = concat(nombre_variable, constante_string);
-
-      if(!existe_simbolo(nombre_variable) && cant_elem_ts <= TAM_TABLA){
-        strcpy(ts[cant_elem_ts].nombre,nombre_variable);
+      if(existe_simbolo(nombre_constante) == FALSE && cant_elem_ts <= TAM_TABLA){
+        strcpy(ts[cant_elem_ts].nombre,nombre_constante);
         ts[cant_elem_ts].longitud = 0;
         strcpy(ts[cant_elem_ts].tipo_dato,"int");
         strcpy(ts[cant_elem_ts].valor,constante_string);
         cant_elem_ts++;
+        free(nombre_constante); 
+        return TRUE;
       }
-
       free(nombre_constante); 
+      return FALSE;
 }
 
-void guardar_cte_string(char * valor) {
+int guardar_cte_string(char * valor) {
       char nombre_variable[32] = "_";
 
       //saca las comillas
@@ -128,23 +126,26 @@ void guardar_cte_string(char * valor) {
       //saca las comillas
       char * nombre_constante = concat(nombre_variable, variable_sin_comillas);
 
-      if(!existe_simbolo(nombre_constante) && cant_elem_ts <= TAM_TABLA){
+      if(existe_simbolo(nombre_constante) == FALSE && cant_elem_ts <= TAM_TABLA){
         strcpy(ts[cant_elem_ts].nombre,nombre_constante);
         ts[cant_elem_ts].longitud = strlen(variable_sin_comillas);
         strcpy(ts[cant_elem_ts].tipo_dato,"string");
         strcpy(ts[cant_elem_ts].valor,variable_sin_comillas);
         cant_elem_ts++;
+        free(nombre_constante); 
+        return TRUE;
       }
       free(nombre_constante); 
+      return FALSE;
+      
 }
 
-void guardar_cte_float(float valor) {
+int guardar_cte_float(float valor) {
       
       float constante = valor;
       char  nombre_variable[] = "_";
       char constante_string[100];
-      ftoa(constante, constante_string, 6);
-
+      sprintf(constante_string,"%f",constante);
       char* nombre_constante = concat(nombre_variable, constante_string);
       if(existe_simbolo(nombre_constante) == FALSE && cant_elem_ts <= TAM_TABLA){
         strcpy(ts[cant_elem_ts].nombre,nombre_constante);
@@ -152,8 +153,11 @@ void guardar_cte_float(float valor) {
         strcpy(ts[cant_elem_ts].tipo_dato,"float");
         strcpy(ts[cant_elem_ts].valor,constante_string);
         cant_elem_ts++;
+        free(nombre_constante);
+        return TRUE;
       }
       free(nombre_constante); // deallocate the string
+      return FALSE;
 }
 
 void guardar_ts(){
@@ -176,16 +180,21 @@ void guardar_ts(){
 }
 
 int existe_simbolo(char * comp) {
+  char * aux;
+  aux = malloc(sizeof(char)*strlen(comp));
+  strcpy(aux,comp);
   int i = 0;
   for( i ; i < cant_elem_ts ; i++ ){
-    if( strcmp(comp, ts[i].nombre) == 0 ){
+    if( strcmp(aux, ts[i].nombre) == 0 ){
       strcpy(simbolo_busqueda.nombre, ts[i].nombre);
       simbolo_busqueda.longitud = ts[i].longitud;
       strcpy(simbolo_busqueda.tipo_dato, ts[i].tipo_dato);
       strcpy(simbolo_busqueda.valor, ts[i].valor);
+      free(aux);
       return TRUE;
       }
   }
+  free(aux);
   return FALSE;
 }
 
@@ -201,63 +210,6 @@ int verificar_asignacion(char * valor) {
         }
   }
 }
-
-
-void ftoa(float n, char* res, int afterpoint) 
-{ 
-    // Extract integer part 
-    int ipart = (int)n; 
-  
-    // Extract floating part 
-    float fpart = n - (float)ipart; 
-  
-    // convert integer part to string 
-    int i = intToStr(ipart, res, 0); 
-  
-    // check for display option after point 
-    if (afterpoint != 0) { 
-        res[i] = '.'; // add dot 
-  
-        // Get the value of fraction part upto given no. 
-        // of points after dot. The third parameter  
-        // is needed to handle cases like 233.007 
-        fpart = fpart * pow(10, afterpoint); 
-  
-        intToStr((int)fpart, res + i + 1, afterpoint); 
-    } 
-} 
-
-
-int intToStr(int x, char str[], int d) 
-{ 
-    int i = 0; 
-    while (x) { 
-        str[i++] = (x % 10) + '0'; 
-        x = x / 10; 
-    } 
-  
-    // If number of digits required is more, then 
-    // add 0s at the beginning 
-    while (i < d) 
-        str[i++] = '0'; 
-  
-    reverse(str, i); 
-    str[i] = '\0'; 
-    return i; 
-} 
-
-void reverse(char* str, int len) 
-{ 
-    int i = 0, j = len - 1, temp; 
-    while (i < j) { 
-        temp = str[i]; 
-        str[i] = str[j]; 
-        str[j] = temp; 
-        i++; 
-        j--; 
-    } 
-} 
-
 
 char* concat(const char *s1, const char *s2)
 {

@@ -51,6 +51,8 @@ CADENA      \"({LETRA}|{DIGITO}|" "|"."|",")*\"
 "between"   { return BETWEEN;}
 "DEFVAR"    { return DEFVAR;}
 "ENDDEF"    { return ENDDEF;}
+"display"   { return DISPLAY;}
+"get"       { return GET;}
 "int"       { yylval.str_val = strdup(yytext); return INT;}
 "string"    { yylval.str_val = strdup(yytext); return STRING;}
 "float"     { yylval.str_val = strdup(yytext); return FLOAT;}
@@ -77,7 +79,7 @@ CADENA      \"({LETRA}|{DIGITO}|" "|"."|",")*\"
                 }
 
 {ENTERO}	    { 
-                    if(atoi( yytext ) <= 32767 && atoi( yytext ) >= -32768){
+                    if(atoi( yytext ) <= 32767 /*&& atoi( yytext ) >= -32768*/){
                         yylval.int_val = atoi(yytext);
                         return ENTERO;
                     }
@@ -102,7 +104,7 @@ CADENA      \"({LETRA}|{DIGITO}|" "|"."|",")*\"
 
 
 {IGNORA}        
-{COM_COMP}	    { printf("\n\nCOMENTARIO \n\n");}
+{COM_COMP}	    
 
 .               { show_error("Caracter invalido!\n"); }
 %%

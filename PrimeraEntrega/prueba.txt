@@ -1,20 +1,31 @@
 DEFVAR
     float : b;c;r;a
-    int : asda
+    int : asda; var1
     float: pepe
     string : a2a;ssd;d
 ENDDEF
 ***/AS
   ***/ /***
 SD/***
-b = 99999999999.0
+b = 9999999.0
 d = "4.5"
+display d
+var1 = 10
+ssd = "OK"
+display "estoy mostrandome por pantalla"
 if(a==b){
     a = b * 9999
+    display a
     b = 4.2
+    display b
 }
 while(!a==c){
     b = b + 4
+    while(asda < 4 && var1 >= 0) {
+        get a2a
+        display a2a
+        var1-=1
+    }
 }
 b-=5
 between(a,[b;b+4])
