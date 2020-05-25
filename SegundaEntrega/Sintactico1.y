@@ -45,11 +45,30 @@ FILE  *yyin;
 programa: 
       bloque_declaracion bloque 
       {
-            printf("COMPILACION CORRECTA\n");
+            
+            int i = 0;
+            printf("cantidad_bloques --- %d\n",cantidad_bloques);
+
+
+            // t_arbol bloque_2 = desapilarBloque();
+            // t_arbol bloque_1 = desapilarBloque();
+            // arbolBloque = (*crear_nodo("BLOQUE",&bloque_1, &bloque_2));
+
+
+
+            // for(i;i<cantidad_bloques-2;i++){
+            //       printf("i --- %d\n",i);
+            //       t_arbol bloque_1 = desapilarBloque();
+            //       arbolBloque = (*crear_nodo("BLOQUE",&bloque_1, &arbolBloque));               
+            // }
+
+
+
+
             FILE * archivo_arbol;
             archivo_arbol = fopen("arbol.txt","wt");
             guardarArbolIRD(&arbolBloque, archivo_arbol);
-
+            printf("COMPILACION CORRECTA\n");
       }
       |bloque
       {
@@ -63,7 +82,7 @@ programa:
 bloque_declaracion:
       DEFVAR declaraciones ENDDEF
       {
-            printf("DECLARACIONES OK\n");
+
       }
       ;
 
@@ -111,14 +130,18 @@ bloque:
       bloque sentencia
       {
             //crear nodo auxiliar con NOMBRE AUX para conectar todas las sentencias :DDDD
+            // cantidad_bloques++;
+            printf("----BLOQUE %s \n", arbolBloque->dato);
+            printf("----SENTENCIA %s \n", arbolSentencia->dato);
             arbolBloque = desapilarBloque();
 		arbolBloque = (*crear_nodo("BLOQUE",&arbolBloque, &arbolSentencia));
             apilarBloque(&arbolBloque);
       }
       |sentencia
       {
-            arbolBloque = arbolSentencia;
-            apilarBloque(&arbolBloque);
+            // cantidad_bloques++;
+            printf("----SENTENCIA SOLA %s \n", arbolSentencia->dato);
+            apilarBloque(&arbolSentencia);
       }
       ;
 
@@ -129,19 +152,15 @@ sentencia:
       }
       |decision
       {
-            printf("-----------------------------HEY");
             arbolSentencia = arbolDecision;
-            printf("DECISION\n");
       }
       |iteracion
       {
             arbolSentencia = arbolIteracion;
-            printf("ITERACION\n");
       }
       |between
       {
             arbolSentencia = arbolBetween;
-            printf("BETWEEN\n");
       }
       |salida
       |entrada
@@ -151,17 +170,17 @@ salida:
       DISPLAY ENTERO
       {
             //guardar_cte_int($<int_val>2);
-            printf("DISPLAY %d\n",$<int_val>2);
+            // printf("DISPLAY %d\n",$<int_val>2);
       }
       |DISPLAY REAL
       {
-            //guardar_cte_float($<real_val>2);
-            printf("DISPLAY %f\n",$<real_val>2);
+            // guardar_cte_float($<real_val>2);
+            // printf("DISPLAY %f\n",$<real_val>2);
       }
       |DISPLAY CADENA
       {
             //guardar_cte_string($<str_val>2);
-            printf("DISPLAY %s\n",$<str_val>2);
+            // printf("DISPLAY %s\n",$<str_val>2);
       }
       |DISPLAY ID
       {
@@ -169,7 +188,7 @@ salida:
                   printf("NO SE DECLARO LA VARIABLE - %s - EN LA SECCION DE DEFINICIONES\n",$<str_val>2);
                   yyerror();
             }
-            printf("DISPLAY %s\n",$<str_val>2);
+            // printf("DISPLAY %s\n",$<str_val>2);
       }
       ;
 
@@ -180,12 +199,8 @@ entrada:
                   printf("NO SE DECLARO LA VARIABLE - %s - EN LA SECCION DE DEFINICIONES\n",$<str_val>2);
                   yyerror();
             }
-            printf("GET %s\n",$<str_val>2 );
+            // printf("GET %s\n",$<str_val>2 );
       }
-      ;
-
-between:
-      BETWEEN P_A ID COMA C_A expresion PYC expresion C_C P_C
       ;
 
 asignacion: 
@@ -196,7 +211,7 @@ asignacion:
                   case 1:     printf("NO SE DECLARO LA VARIABLE - %s - EN LA SECCION DE DEFINICIONES\n",$<str_val>1);
                               yyerror();
                               break;
-                  case 2:     printf("ASIGNACION EXITOSA!\n");
+                  case 2:     //printf("ASIGNACION EXITOSA!\n");
                               arbolAsignacion = (*crear_hoja($<str_val>1));
                               arbolAsignacion = (*crear_nodo("=", &arbolAsignacion, &arbolExpresion));
                               break;
@@ -212,14 +227,14 @@ asignacion:
             arbolAsignacionEspecial = (*crear_nodo(ultimo_operador, &arbolAsignacion,&arbolExpresion));
             arbolAsignacion = (*crear_hoja($<str_val>1));
             arbolAsignacionEspecial = (*crear_nodo("=",&arbolAsignacion,&arbolAsignacionEspecial));
-            printf("ASIGNACION ESPECIAL EXITOSA!\n");
+            // printf("ASIGNACION ESPECIAL EXITOSA!\n");
       }
       |ID ASIG CADENA
       {
             guardar_cte_string($<str_val>3);
             ultima_expresion = "string";
             switch(verificar_asignacion($<str_val>1)){
-                  case 1:   printf("NO SE DECLARO LA VARIABLE - %s - EN LA SECCION DE DEFINICIONES\n",$<str_val>1);
+                  case 1:   //printf("NO SE DECLARO LA VARIABLE - %s - EN LA SECCION DE DEFINICIONES\n",$<str_val>1);
                               yyerror();
                               break;
                   case 2:   printf("CONSTANTE STRING: %s\n",$<str_val>3);
@@ -334,25 +349,60 @@ condicion:
       {
             arbolCondicion = negarComparacion(&arbolComparacion);
       }
+      |between
+      {
+            arbolComparacion = (*crear_hoja("0"));
+            arbolComparacion = (*crear_nodo("!=",&id_aux,&arbolComparacion));
+            apilar(&arbolComparacion);
+      }
+      ;
+
+between:
+      BETWEEN P_A ID COMA C_A expresion PYC expresion C_C P_C
+      {
+            t_arbol limite_sup = desapilar();
+            t_arbol limite_inf = desapilar();
+
+            char* ID_AUX = "ID_AUX";
+            t_arbol aux;
+
+            id_aux = (*crear_hoja(ID_AUX));
+            
+            t_arbol verdadero = (*crear_hoja("1"));
+            t_arbol falso = (*crear_hoja("0"));
+
+            verdadero = (*crear_nodo("=", &id_aux, &verdadero));
+            falso = (*crear_nodo("=", &id_aux, &falso));
+
+            arbolBetween = (*crear_nodo("CUERPO", &verdadero, &falso));
+
+            aux = (*crear_hoja($<str_val>3));
+            aux = (*crear_nodo("<=", &aux, &limite_sup));
+
+            arbolBetween = (*crear_nodo("IF", &aux, &arbolBetween));
+
+            arbolBetween = (*crear_nodo("CUERPO", &arbolBetween, &falso));
+
+            aux = (*crear_hoja($<str_val>3));
+            aux = (*crear_nodo(">=", &aux, &limite_inf));
+            
+            arbolBetween = (*crear_nodo("IF", &aux, &arbolBetween));
+      }
       ;
 
 comparacion: 
-      expresion       
+      expresion comparador expresion
       {
-            apilar(&arbolExpresion);
-      } 
-      comparador expresion
-      {
-            arbolComparacion = desapilar();
-            arbolComparacion = (*crear_nodo(ultimo_comparador,&arbolComparacion,&arbolExpresion));
-            // agregue esto
+            t_arbol expresion_2 = desapilar();
+            t_arbol expresion_1 = desapilar();
+            arbolComparacion = (*crear_nodo(ultimo_comparador,&expresion_1,&expresion_2));
             apilar(&arbolComparacion);
       }
       |expresion
       {
+            t_arbol expresion_1 = desapilar();
             arbolComparacion = (*crear_hoja("0"));
-            arbolComparacion = (*crear_nodo("!=",&arbolExpresion,&arbolComparacion));
-            // agregue esto
+            arbolComparacion = (*crear_nodo("!=",&expresion_1,&arbolComparacion));
             apilar(&arbolComparacion);
       }
       ;
@@ -390,18 +440,21 @@ expresion:
       {
             // printf("3.1\n");
             arbolExpresion = arbolTermino;
+            apilar(&arbolExpresion);
       }
       |expresion OP_RESTA termino
       {
             // printf("3.2\n");
-            printf("RESTA\n");
+            // printf("RESTA\n");
             arbolExpresion = (*crear_nodo("-", &arbolExpresion, &arbolTermino));
+            apilar(&arbolExpresion);
       }
       |expresion OP_SUMA termino
       {
             // printf("3.3\n");
-            printf("SUMA\n");
+            // printf("SUMA\n");
             arbolExpresion = (*crear_nodo("+", &arbolExpresion, &arbolTermino));
+            apilar(&arbolExpresion);
       }
       ;
 
@@ -418,7 +471,7 @@ termino:
       OP_MUL factor
       {
             // printf("2.2.2\n");
-            printf("MULTIPLICACION\n");
+            // printf("MULTIPLICACION\n");
             t_arbol factor = desapilar();
             t_arbol termino = desapilar();
             arbolTermino = (*crear_nodo("*", &termino, &factor));
@@ -430,7 +483,7 @@ termino:
       OP_DIV factor
       {
             // printf("2.2.2\n");
-            printf("MULTIPLICACION\n");
+            // printf("MULTIPLICACION\n");
             t_arbol factor = desapilar();
             t_arbol termino = desapilar();
             arbolTermino = (*crear_nodo("*", &termino, &factor));
@@ -446,7 +499,7 @@ factor:
                   yyerror();
             }
             ultima_expresion = simbolo_busqueda.tipo_dato;
-            printf("VARIABLE USADA: %s\n", $<str_val>1);
+            // printf("VARIABLE USADA: %s\n", $<str_val>1);
             arbolFactor = (*crear_hoja($<str_val>1));
             apilar(&arbolFactor);
       }
@@ -455,7 +508,7 @@ factor:
             // printf("1.2\n");
             guardar_cte_int($<int_val>1);
             ultima_expresion = "int";
-            printf("CONSTANTE ENTERA: %d\n",$<int_val>1);
+            // printf("CONSTANTE ENTERA: %d\n",$<int_val>1);
             char aux[100];
             sprintf(aux,"%d",$<int_val>1);
             arbolFactor = (*crear_hoja(aux));
@@ -467,7 +520,7 @@ factor:
             float valor = $<real_val>1;
             guardar_cte_float(valor);
             ultima_expresion = "float";  
-            printf("CONSTANTE REAL: %f\n",valor);
+            // printf("CONSTANTE REAL: %f\n",valor);
             char aux[100];
             sprintf(aux,"%f",$<real_val>1);
             arbolFactor = (*crear_hoja(aux));

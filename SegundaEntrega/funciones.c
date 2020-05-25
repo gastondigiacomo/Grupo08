@@ -41,9 +41,10 @@ simbolo ts[TAM_TABLA];
 simbolo simbolo_busqueda;
 
 FILE * file;
-
+int between_flag = 0;
 int cant_elem_ts = 0;
 int cantidad_cuerpos;
+int cantidad_bloques = 0;
 char tipo_dato[30];
 char * ultima_expresion;
 char * ultimo_comparador;

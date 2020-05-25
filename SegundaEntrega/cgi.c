@@ -69,6 +69,10 @@ t_arbol arbolCuerpoFalso;
 t_arbol arbolCuerpoOR;
 t_arbol arbolCuerpoAND;
 t_arbol arbolAux;
+t_arbol arbolBetween;
+t_arbol id_aux;
+t_arbol arbolDesapilado;
+t_arbol arbolPrograma;
 
 int cant_pila_polaca = 0;
 int cant_pila_aux = 0;
@@ -113,12 +117,16 @@ t_arbol* crear_nodo(char* raiz, t_arbol* hojaIzq, t_arbol* hojaDer){
 	if(hojaIzq){
 		nodo->izq = *hojaIzq;
         printf("izq nodo: %s\n",(nodo->izq)->dato);
+        printf("izq nodo izq: %s\n",(nodo->izq)->izq->dato);
+        printf("izq nodo der: %s\n",(nodo->izq)->der->dato);
 	}else{
 		nodo->izq = NULL;
 	}
 	if(hojaDer){
 		nodo->der = *hojaDer;
         printf("der nodo: %s\n",(nodo->der)->dato);
+        printf("der nodo izq: %s\n",(nodo->der)->izq->dato);
+        printf("der nodo der: %s\n",(nodo->der)->der->dato);
 	}else{
 		nodo->der = NULL;
 	}
@@ -265,6 +273,9 @@ t_arbol desapilarBloque(){
     aux=pilaBloque;
     pilaBloque=aux->sig;
     auxDato = aux->dato;
+    // printf("DATO DESAPILADO %s\n", (auxDato)->dato);
+    // printf("DATO DESAPILADO IZQ %s\n", (auxDato)->izq->dato);
+    // printf("DATO DESAPILADO DER %s\n", (auxDato)->der->dato);
 	free(aux);
     return auxDato;
 }

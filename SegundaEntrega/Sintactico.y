@@ -45,18 +45,21 @@ FILE  *yyin;
 programa: 
       bloque_declaracion bloque 
       {
-            printf("COMPILACION CORRECTA\n");
+            
+            int i = 0;
+            arbolPrograma = desapilarBloque();
             FILE * archivo_arbol;
             archivo_arbol = fopen("arbol.txt","wt");
-            guardarArbolIRD(&arbolBloque, archivo_arbol);
-
+            guardarArbolIRD(&arbolPrograma, archivo_arbol);
+            printf("COMPILACION CORRECTA\n");
       }
       |bloque
       {
-            printf("COMPILACION CORRECTA\n");
+            arbolPrograma = desapilarBloque();
             FILE * archivo_arbol;
             archivo_arbol = fopen("arbol.txt","wt");
-            guardarArbolIRD(&arbolBloque, archivo_arbol);
+            guardarArbolIRD(&arbolPrograma, archivo_arbol);
+            printf("COMPILACION CORRECTA\n");
       }
       ;
 
@@ -110,15 +113,13 @@ lista_id:
 bloque: 
       bloque sentencia
       {
-            //crear nodo auxiliar con NOMBRE AUX para conectar todas las sentencias :DDDD
             arbolBloque = desapilarBloque();
 		arbolBloque = (*crear_nodo("BLOQUE",&arbolBloque, &arbolSentencia));
             apilarBloque(&arbolBloque);
       }
       |sentencia
       {
-            arbolBloque = arbolSentencia;
-            apilarBloque(&arbolBloque);
+            apilarBloque(&arbolSentencia);
       }
       ;
 
@@ -178,10 +179,6 @@ entrada:
             }
             // printf("GET %s\n",$<str_val>2 );
       }
-      ;
-
-between:
-      BETWEEN P_A ID COMA C_A expresion PYC expresion C_C P_C
       ;
 
 asignacion: 
@@ -258,12 +255,13 @@ iteracion:
 decision:
       IF P_A condicion P_C L_A bloque L_C
       {
+            t_arbol bloque_then = desapilarBloque();
             if (strcmp(arbolCondicion-> dato, "OR") == 0) {
                   t_arbol cmp_1 = arbolCondicion-> izq;
                   t_arbol cmp_2 = arbolCondicion-> der;
                   
-                  arbolDecision = (*crear_nodo("IF", &cmp_2, &arbolBloque));
-                  arbolDecision = (*crear_nodo("CUERPO", &arbolBloque, &arbolDecision));
+                  arbolDecision = (*crear_nodo("IF", &cmp_2, &bloque_then));
+                  arbolDecision = (*crear_nodo("CUERPO", &bloque_then, &arbolDecision));
                   arbolDecision = (*crear_nodo("IF", &cmp_1, &arbolDecision));
 
             }
@@ -271,11 +269,15 @@ decision:
                   t_arbol cmp_1 = arbolCondicion-> izq;
                   t_arbol cmp_2 = arbolCondicion-> der;
 
-                  arbolDecision = (*crear_nodo("IF", &cmp_2, &arbolBloque));
+                  arbolDecision = (*crear_nodo("IF", &cmp_2, &bloque_then));
                   arbolDecision = (*crear_nodo("IF", &cmp_1, &arbolDecision));
             }
             else {
-                  arbolDecision = (*crear_nodo("IF",&arbolCondicion,&arbolBloque));
+                  arbolDecision = (*crear_nodo("IF",&arbolCondicion,&bloque_then));
+            }
+            if(between_flag == 1) {
+                  arbolDecision = (*crear_nodo("BLOQUE",&arbolBetween,&arbolDecision));
+                  between_flag = 0;
             }
       }
       | IF P_A condicion P_C L_A bloque L_C ELSE L_A bloque L_C
@@ -306,6 +308,10 @@ decision:
                   arbolDecision = (*crear_nodo("CUERPO", &bloque_then, &bloque_else));
                   arbolDecision = (*crear_nodo("IF",&arbolCondicion,&arbolDecision));
             }
+            if(between_flag == 1) {
+                  arbolDecision = (*crear_nodo("BLOQUE",&arbolBetween,&arbolDecision));
+                  between_flag = 0;
+            }
       }
       ;
 
@@ -329,6 +335,45 @@ condicion:
       |OP_L_N comparacion
       {
             arbolCondicion = negarComparacion(&arbolComparacion);
+      }
+      |between
+      {
+            between_flag = 1;
+            arbolCondicion = (*crear_hoja("0"));
+            arbolCondicion = (*crear_nodo("!=",&id_aux,&arbolCondicion));
+      }
+      ;
+
+between:
+      BETWEEN P_A ID COMA C_A expresion PYC expresion C_C P_C
+      {
+            t_arbol limite_sup = desapilar();
+            t_arbol limite_inf = desapilar();
+
+            char* ID_AUX = "ID_AUX";
+            t_arbol aux;
+
+            id_aux = (*crear_hoja(ID_AUX));
+            
+            t_arbol verdadero = (*crear_hoja("1"));
+            t_arbol falso = (*crear_hoja("0"));
+
+            verdadero = (*crear_nodo("=", &id_aux, &verdadero));
+            falso = (*crear_nodo("=", &id_aux, &falso));
+
+            arbolBetween = (*crear_nodo("CUERPO", &verdadero, &falso));
+
+            aux = (*crear_hoja($<str_val>3));
+            aux = (*crear_nodo("<=", &aux, &limite_sup));
+
+            arbolBetween = (*crear_nodo("IF", &aux, &arbolBetween));
+
+            arbolBetween = (*crear_nodo("CUERPO", &arbolBetween, &falso));
+
+            aux = (*crear_hoja($<str_val>3));
+            aux = (*crear_nodo(">=", &aux, &limite_inf));
+            
+            arbolBetween = (*crear_nodo("IF", &aux, &arbolBetween));
       }
       ;
 
