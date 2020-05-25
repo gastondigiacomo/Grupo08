@@ -184,14 +184,15 @@ entrada:
 asignacion: 
       ID ASIG expresion
       {
-            
+            t_arbol aux_expresion;
             switch(verificar_asignacion($<str_val>1)){
                   case 1:     printf("NO SE DECLARO LA VARIABLE - %s - EN LA SECCION DE DEFINICIONES\n",$<str_val>1);
                               yyerror();
                               break;
                   case 2:     //printf("ASIGNACION EXITOSA!\n");
+                              aux_expresion = desapilar();
                               arbolAsignacion = (*crear_hoja($<str_val>1));
-                              arbolAsignacion = (*crear_nodo("=", &arbolAsignacion, &arbolExpresion));
+                              arbolAsignacion = (*crear_nodo("=", &arbolAsignacion, &aux_expresion));
                               break;
                   case 3:     printf("ERROR DE SINTAXIS, ASIGNACION ERRONEA, TIPOS DE DATOS INCORRECTOS.\n"); 
                               printf("USTED ESTA INTENTANDO ASIGNAR UNA CONSTANTE %s A UNA VARIABLE %s \n", ultima_expresion, simbolo_busqueda.tipo_dato);
@@ -201,10 +202,11 @@ asignacion:
       }
       |ID operador ASIG expresion
       {
+            t_arbol aux_expresion = desapilar();
             arbolAsignacion = (*crear_hoja($<str_val>1));
-            arbolAsignacionEspecial = (*crear_nodo(ultimo_operador, &arbolAsignacion,&arbolExpresion));
+            arbolAsignacionEspecial = (*crear_nodo(ultimo_operador, &arbolAsignacion,&aux_expresion));
             arbolAsignacion = (*crear_hoja($<str_val>1));
-            arbolAsignacionEspecial = (*crear_nodo("=",&arbolAsignacion,&arbolAsignacionEspecial));
+            arbolAsignacion = (*crear_nodo("=",&arbolAsignacion,&arbolAsignacionEspecial));
             // printf("ASIGNACION ESPECIAL EXITOSA!\n");
       }
       |ID ASIG CADENA
@@ -256,24 +258,26 @@ decision:
       IF P_A condicion P_C L_A bloque L_C
       {
             t_arbol bloque_then = desapilarBloque();
-            if (strcmp(arbolCondicion-> dato, "OR") == 0) {
-                  t_arbol cmp_1 = arbolCondicion-> izq;
-                  t_arbol cmp_2 = arbolCondicion-> der;
+            t_arbol aux_arbol_condicion = desapilar();
+
+            if (strcmp(aux_arbol_condicion-> dato, "OR") == 0) {
+                  t_arbol cmp_1 = aux_arbol_condicion-> izq;
+                  t_arbol cmp_2 = aux_arbol_condicion-> der;
                   
                   arbolDecision = (*crear_nodo("IF", &cmp_2, &bloque_then));
                   arbolDecision = (*crear_nodo("CUERPO", &bloque_then, &arbolDecision));
                   arbolDecision = (*crear_nodo("IF", &cmp_1, &arbolDecision));
 
             }
-            else if (strcmp(arbolCondicion-> dato, "AND") == 0) {
-                  t_arbol cmp_1 = arbolCondicion-> izq;
-                  t_arbol cmp_2 = arbolCondicion-> der;
+            else if (strcmp(aux_arbol_condicion-> dato, "AND") == 0) {
+                  t_arbol cmp_1 = aux_arbol_condicion-> izq;
+                  t_arbol cmp_2 = aux_arbol_condicion-> der;
 
                   arbolDecision = (*crear_nodo("IF", &cmp_2, &bloque_then));
                   arbolDecision = (*crear_nodo("IF", &cmp_1, &arbolDecision));
             }
             else {
-                  arbolDecision = (*crear_nodo("IF",&arbolCondicion,&bloque_then));
+                  arbolDecision = (*crear_nodo("IF",&aux_arbol_condicion,&bloque_then));
             }
             if(between_flag == 1) {
                   arbolDecision = (*crear_nodo("BLOQUE",&arbolBetween,&arbolDecision));
@@ -284,20 +288,20 @@ decision:
       {
             t_arbol bloque_else = desapilarBloque();
             t_arbol bloque_then = desapilarBloque();
-
-            if (strcmp(arbolCondicion-> dato, "OR") == 0) {
+            t_arbol aux_arbol_condicion = desapilar();
+            if (strcmp(aux_arbol_condicion-> dato, "OR") == 0) {
                   
-                  t_arbol cmp_1 = arbolCondicion-> izq;
-                  t_arbol cmp_2 = arbolCondicion-> der;
+                  t_arbol cmp_1 = aux_arbol_condicion-> izq;
+                  t_arbol cmp_2 = aux_arbol_condicion-> der;
                   arbolDecision = (*crear_nodo("CUERPO", &bloque_then, &bloque_else));
                   arbolDecision = (*crear_nodo("IF", &cmp_2, &arbolDecision));
                   arbolDecision = (*crear_nodo("CUERPO", &bloque_then, &arbolDecision));
                   arbolDecision = (*crear_nodo("IF", &cmp_1, &arbolDecision));
                   
             }
-            else if (strcmp(arbolCondicion-> dato, "AND") == 0) {
-                  t_arbol cmp_1 = arbolCondicion-> izq;
-                  t_arbol cmp_2 = arbolCondicion-> der;
+            else if (strcmp(aux_arbol_condicion-> dato, "AND") == 0) {
+                  t_arbol cmp_1 = aux_arbol_condicion-> izq;
+                  t_arbol cmp_2 = aux_arbol_condicion-> der;
 
                   arbolDecision = (*crear_nodo("CUERPO", &bloque_then, &bloque_else));
                   arbolDecision = (*crear_nodo("IF", &cmp_2, &arbolDecision));
@@ -306,7 +310,7 @@ decision:
             }
             else {
                   arbolDecision = (*crear_nodo("CUERPO", &bloque_then, &bloque_else));
-                  arbolDecision = (*crear_nodo("IF",&arbolCondicion,&arbolDecision));
+                  arbolDecision = (*crear_nodo("IF",&aux_arbol_condicion,&arbolDecision));
             }
             if(between_flag == 1) {
                   arbolDecision = (*crear_nodo("BLOQUE",&arbolBetween,&arbolDecision));
@@ -321,26 +325,47 @@ condicion:
             t_arbol cmp2 = desapilar();
             t_arbol cmp1 = desapilar();
             arbolCondicion = (*crear_nodo("OR", &cmp1, &cmp2));
+            apilar(&arbolCondicion);
       }
       |comparacion OP_L_A comparacion
       {
             t_arbol cmp2 = desapilar();
             t_arbol cmp1 = desapilar();
             arbolCondicion = (*crear_nodo("AND", &cmp1, &cmp2));
+            apilar(&arbolCondicion);
       }
       |comparacion
       {
-            arbolCondicion = arbolComparacion;
       }
       |OP_L_N comparacion
       {
-            arbolCondicion = negarComparacion(&arbolComparacion);
+            arbolCondicion = desapilar();
+            arbolCondicion = negarComparacion(&arbolCondicion);
+            apilar(&arbolCondicion);
       }
       |between
       {
             between_flag = 1;
             arbolCondicion = (*crear_hoja("0"));
             arbolCondicion = (*crear_nodo("!=",&id_aux,&arbolCondicion));
+            apilar(&arbolCondicion);
+      }
+      ;
+
+comparacion: 
+      expresion comparador expresion
+      {
+            t_arbol expresion_2 = desapilar();
+            t_arbol expresion_1 = desapilar();
+            arbolComparacion = (*crear_nodo(ultimo_comparador,&expresion_1,&expresion_2));
+            apilar(&arbolComparacion);
+      }
+      |expresion
+      {
+            t_arbol expresion_1 = desapilar();
+            arbolComparacion = (*crear_hoja("0"));
+            arbolComparacion = (*crear_nodo("!=",&expresion_1,&arbolComparacion));
+            apilar(&arbolComparacion);
       }
       ;
 
@@ -377,23 +402,6 @@ between:
       }
       ;
 
-comparacion: 
-      expresion comparador expresion
-      {
-            t_arbol expresion_2 = desapilar();
-            t_arbol expresion_1 = desapilar();
-            arbolComparacion = (*crear_nodo(ultimo_comparador,&expresion_1,&expresion_2));
-            apilar(&arbolComparacion);
-      }
-      |expresion
-      {
-            t_arbol expresion_1 = desapilar();
-            arbolComparacion = (*crear_hoja("0"));
-            arbolComparacion = (*crear_nodo("!=",&expresion_1,&arbolComparacion));
-            apilar(&arbolComparacion);
-      }
-      ;
-
 comparador:
       OP_L_GT
       {
@@ -426,6 +434,7 @@ expresion:
       termino
       {
             // printf("3.1\n");
+            arbolTermino = desapilar();
             arbolExpresion = arbolTermino;
             apilar(&arbolExpresion);
       }
@@ -433,6 +442,7 @@ expresion:
       {
             // printf("3.2\n");
             // printf("RESTA\n");
+            arbolTermino = desapilar();
             arbolExpresion = (*crear_nodo("-", &arbolExpresion, &arbolTermino));
             apilar(&arbolExpresion);
       }
@@ -440,6 +450,7 @@ expresion:
       {
             // printf("3.3\n");
             // printf("SUMA\n");
+            arbolTermino = desapilar();
             arbolExpresion = (*crear_nodo("+", &arbolExpresion, &arbolTermino));
             apilar(&arbolExpresion);
       }
@@ -449,7 +460,6 @@ termino:
       factor
       {
             // printf("2.1\n");
-            arbolTermino = desapilar();
       }
       |termino
       {
@@ -462,6 +472,7 @@ termino:
             t_arbol factor = desapilar();
             t_arbol termino = desapilar();
             arbolTermino = (*crear_nodo("*", &termino, &factor));
+            apilar(&arbolTermino);
       }
       |termino
       {
@@ -474,6 +485,7 @@ termino:
             t_arbol factor = desapilar();
             t_arbol termino = desapilar();
             arbolTermino = (*crear_nodo("*", &termino, &factor));
+            apilar(&arbolTermino);
       }
       ;
 

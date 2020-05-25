@@ -212,7 +212,9 @@ void apilar(t_arbol* d)
     nue->dato =(t_arbol) (*d);
     nue->sig = pila;
     pila = nue;
-
+    // printf("DATO APILADO %s\n", (*d)->dato);
+    // printf("DATO APILADO IZQ %s\n", (*d)->izq->dato);
+    // printf("DATO APILADO DER %s\n", (*d)->der->dato);
 }
 
 t_arbol desapilar()
@@ -225,6 +227,8 @@ t_arbol desapilar()
     auxDato = aux->dato;
 	free(aux);
     // printf("DATO DESAPILADO %s\n", (auxDato)->dato);
+    // printf("DATO DESAPILADO IZQ %s\n", (auxDato)->izq->dato);
+    // printf("DATO DESAPILADO DER %s\n", (auxDato)->der->dato);
     return auxDato;
 }
 
