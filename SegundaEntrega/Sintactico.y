@@ -251,7 +251,13 @@ operador:
       ;
 
 iteracion:
-      WHILE P_A condicion P_C L_A bloque L_C 
+      WHILE P_A condicion P_C L_A bloque L_C
+      {
+            t_arbol aux_arbol_condicion = desapilar();
+            t_arbol bloque_then = desapilarBloque();
+
+            arbolIteracion = (*crear_nodo("WHILE", &aux_arbol_condicion, &bloque_then));
+      }
       ;
 
 decision:
