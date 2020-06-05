@@ -73,6 +73,8 @@ t_arbol arbolBetween;
 t_arbol id_aux;
 t_arbol arbolDesapilado;
 t_arbol arbolPrograma;
+t_arbol arbolDisplay;
+t_arbol arbolGet;
 
 int cant_pila_polaca = 0;
 int cant_pila_aux = 0;

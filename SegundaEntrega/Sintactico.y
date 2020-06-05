@@ -41,6 +41,9 @@ FILE  *yyin;
 
 %%
 
+start:
+      programa
+      ;
 
 programa: 
       bloque_declaracion bloque 
@@ -49,7 +52,7 @@ programa:
             int i = 0;
             arbolPrograma = desapilarBloque();
             FILE * archivo_arbol;
-            archivo_arbol = fopen("arbol.txt","wt");
+            archivo_arbol = fopen("intermedia.txt","wt");
             guardarArbolIRD(&arbolPrograma, archivo_arbol);
             printf("COMPILACION CORRECTA\n");
       }
@@ -65,9 +68,6 @@ programa:
 
 bloque_declaracion:
       DEFVAR declaraciones ENDDEF
-      {
-
-      }
       ;
 
 declaraciones:
@@ -141,23 +141,39 @@ sentencia:
             arbolSentencia = arbolBetween;
       }
       |salida
+      {
+            arbolSentencia = arbolDisplay;
+      }
       |entrada
+      {
+            arbolSentencia = arbolGet;
+      }
       ;
 
 salida:
       DISPLAY ENTERO
       {
-            //guardar_cte_int($<int_val>2);
+            guardar_cte_int($<int_val>2);
             // printf("DISPLAY %d\n",$<int_val>2);
+            char aux[100];
+            sprintf(aux,"%d",$<int_val>1);
+            arbolDisplay = (*crear_hoja(aux));
+            arbolDisplay = (*crear_nodo("DISPLAY", &arbolDisplay, NULL));
       }
       |DISPLAY REAL
       {
-            // guardar_cte_float($<real_val>2);
+            guardar_cte_float($<real_val>2);
             // printf("DISPLAY %f\n",$<real_val>2);
+            char aux[100];
+            sprintf(aux,"%f",$<int_val>1);
+            arbolDisplay = (*crear_hoja(aux));
+            arbolDisplay = (*crear_nodo("DISPLAY", &arbolDisplay, NULL));
       }
       |DISPLAY CADENA
       {
-            //guardar_cte_string($<str_val>2);
+            guardar_cte_string($<str_val>2);
+            arbolDisplay = (*crear_hoja($<str_val>2));
+            arbolDisplay = (*crear_nodo("DISPLAY", &arbolDisplay, NULL));
             // printf("DISPLAY %s\n",$<str_val>2);
       }
       |DISPLAY ID
@@ -165,6 +181,9 @@ salida:
             if(!existe_simbolo($<str_val>2)){
                   printf("NO SE DECLARO LA VARIABLE - %s - EN LA SECCION DE DEFINICIONES\n",$<str_val>2);
                   yyerror();
+            }else{
+                  arbolDisplay = (*crear_hoja($<str_val>2));
+                  arbolDisplay = (*crear_nodo("DISPLAY", &arbolDisplay, NULL));
             }
             // printf("DISPLAY %s\n",$<str_val>2);
       }
@@ -176,6 +195,10 @@ entrada:
             if(!existe_simbolo($<str_val>2)){
                   printf("NO SE DECLARO LA VARIABLE - %s - EN LA SECCION DE DEFINICIONES\n",$<str_val>2);
                   yyerror();
+            }
+            else{
+                  arbolGet = (*crear_hoja($<str_val>2));
+                  arbolGet = (*crear_nodo("GET", &arbolGet, NULL));
             }
             // printf("GET %s\n",$<str_val>2 );
       }
