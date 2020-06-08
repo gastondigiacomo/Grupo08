@@ -14,7 +14,7 @@ var1 = 10
 z = 3
 ssd = "OK"
 display "estoy mostrandome por pantalla"
-if(a==b){
+if(between(a,[b;b+4])){
     a = b * 9999
     display a
     b = 4.2
@@ -35,4 +35,3 @@ while(!a==c){
     }
 }
 b-=5
-between(a,[b;b+4])

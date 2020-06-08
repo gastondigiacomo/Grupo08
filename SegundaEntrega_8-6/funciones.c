@@ -21,7 +21,7 @@
 void crearTabla();
 void guardar_variables_ts();
 int guardar_cte_int(int valor);
-int guardar_cte_string(char * valor);
+char* guardar_cte_string(char * valor);
 int guardar_cte_float(float valor);
 void guardar_ts();
 int existe_simbolo(char * comp);
@@ -99,9 +99,8 @@ int guardar_cte_int(int valor) {
       return FALSE;
 }
 
-int guardar_cte_string(char * valor) {
+char* guardar_cte_string(char * valor) {
       char nombre_variable[32] = "_";
-
       //saca las comillas
       char * variable_sin_comillas = malloc(sizeof(char)*100);
       strcpy(variable_sin_comillas, valor);
@@ -116,12 +115,8 @@ int guardar_cte_string(char * valor) {
         strcpy(ts[cant_elem_ts].tipo_dato,"string");
         strcpy(ts[cant_elem_ts].valor,variable_sin_comillas);
         cant_elem_ts++;
-        free(nombre_constante); 
-        return TRUE;
       }
-      free(nombre_constante); 
-      return FALSE;
-      
+      return nombre_constante;
 }
 
 int guardar_cte_float(float valor) {

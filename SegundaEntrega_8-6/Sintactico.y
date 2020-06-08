@@ -136,10 +136,6 @@ sentencia:
       {
             arbolSentencia = arbolIteracion;
       }
-      |between
-      {
-            arbolSentencia = arbolBetween;
-      }
       |salida
       {
             arbolSentencia = arbolDisplay;
@@ -154,7 +150,6 @@ salida:
       DISPLAY ENTERO
       {
             guardar_cte_int($<int_val>2);
-            // printf("DISPLAY %d\n",$<int_val>2);
             char aux[100];
             sprintf(aux,"%d",$<int_val>1);
             arbolDisplay = (*crear_hoja(aux));
@@ -163,7 +158,6 @@ salida:
       |DISPLAY REAL
       {
             guardar_cte_float($<real_val>2);
-            // printf("DISPLAY %f\n",$<real_val>2);
             char aux[100];
             sprintf(aux,"%f",$<int_val>1);
             arbolDisplay = (*crear_hoja(aux));
@@ -171,10 +165,10 @@ salida:
       }
       |DISPLAY CADENA
       {
-            guardar_cte_string($<str_val>2);
-            arbolDisplay = (*crear_hoja($<str_val>2));
+            char* nombre_cte_string = guardar_cte_string($<str_val>2);
+            arbolDisplay = (*crear_hoja(nombre_cte_string));
             arbolDisplay = (*crear_nodo("DISPLAY", &arbolDisplay, NULL));
-            // printf("DISPLAY %s\n",$<str_val>2);
+            free(nombre_cte_string);
       }
       |DISPLAY ID
       {
@@ -185,7 +179,6 @@ salida:
                   arbolDisplay = (*crear_hoja($<str_val>2));
                   arbolDisplay = (*crear_nodo("DISPLAY", &arbolDisplay, NULL));
             }
-            // printf("DISPLAY %s\n",$<str_val>2);
       }
       ;
 
@@ -200,7 +193,6 @@ entrada:
                   arbolGet = (*crear_hoja($<str_val>2));
                   arbolGet = (*crear_nodo("GET", &arbolGet, NULL));
             }
-            // printf("GET %s\n",$<str_val>2 );
       }
       ;
 
@@ -212,8 +204,7 @@ asignacion:
                   case 1:     printf("NO SE DECLARO LA VARIABLE - %s - EN LA SECCION DE DEFINICIONES\n",$<str_val>1);
                               yyerror();
                               break;
-                  case 2:     //printf("ASIGNACION EXITOSA!\n");
-                              aux_expresion = desapilar();
+                  case 2:     aux_expresion = desapilar();
                               arbolAsignacion = (*crear_hoja($<str_val>1));
                               arbolAsignacion = (*crear_nodo("=", &arbolAsignacion, &aux_expresion));
                               break;
@@ -230,24 +221,24 @@ asignacion:
             arbolAsignacionEspecial = (*crear_nodo(ultimo_operador, &arbolAsignacion,&aux_expresion));
             arbolAsignacion = (*crear_hoja($<str_val>1));
             arbolAsignacion = (*crear_nodo("=",&arbolAsignacion,&arbolAsignacionEspecial));
-            // printf("ASIGNACION ESPECIAL EXITOSA!\n");
       }
       |ID ASIG CADENA
       {
-            guardar_cte_string($<str_val>3);
+            char * nombre_cte_string = guardar_cte_string($<str_val>3);
             ultima_expresion = "string";
             switch(verificar_asignacion($<str_val>1)){
-                  case 1:   //printf("NO SE DECLARO LA VARIABLE - %s - EN LA SECCION DE DEFINICIONES\n",$<str_val>1);
+                  case 1:   printf("NO SE DECLARO LA VARIABLE - %s - EN LA SECCION DE DEFINICIONES\n",$<str_val>1);
+                              free(nombre_cte_string);
                               yyerror();
                               break;
-                  case 2:   printf("CONSTANTE STRING: %s\n",$<str_val>3);
-                              arbolAsignacion = (*crear_hoja($<str_val>1));
-                              arbolAsignacionCadena = (*crear_hoja($<str_val>3));
+                  case 2:   arbolAsignacion = (*crear_hoja($<str_val>1));
+                              arbolAsignacionCadena = (*crear_hoja(nombre_cte_string));
                               arbolAsignacion = (*crear_nodo("=",&arbolAsignacion,&arbolAsignacionCadena));
-                              printf("ASIGNACION EXITOSA!\n");
+                              free(nombre_cte_string);
                               break;
                   case 3:   printf("ERROR DE SINTAXIS, ASIGNACION ERRONEA, TIPOS DE DATOS INCORRECTOS.\n"); 
                               printf("USTED ESTA INTENTANDO ASIGNAR UNA CONSTANTE %s A UNA VARIABLE %s \n", ultima_expresion, simbolo_busqueda.tipo_dato);
+                              free(nombre_cte_string);
                               yyerror();
                               break;
             }
@@ -462,23 +453,18 @@ comparador:
 expresion:
       termino
       {
-            // printf("3.1\n");
             arbolTermino = desapilar();
             arbolExpresion = arbolTermino;
             apilar(&arbolExpresion);
       }
       |expresion OP_RESTA termino
       {
-            // printf("3.2\n");
-            // printf("RESTA\n");
             arbolTermino = desapilar();
             arbolExpresion = (*crear_nodo("-", &arbolExpresion, &arbolTermino));
             apilar(&arbolExpresion);
       }
       |expresion OP_SUMA termino
       {
-            // printf("3.3\n");
-            // printf("SUMA\n");
             arbolTermino = desapilar();
             arbolExpresion = (*crear_nodo("+", &arbolExpresion, &arbolTermino));
             apilar(&arbolExpresion);
@@ -488,7 +474,6 @@ expresion:
 termino: 
       factor
       {
-            // printf("2.1\n");
       }
       |termino
       {
@@ -496,8 +481,6 @@ termino:
       }
       OP_MUL factor
       {
-            // printf("2.2.2\n");
-            // printf("MULTIPLICACION\n");
             t_arbol factor = desapilar();
             t_arbol termino = desapilar();
             arbolTermino = (*crear_nodo("*", &termino, &factor));
@@ -509,8 +492,6 @@ termino:
       }
       OP_DIV factor
       {
-            // printf("2.2.2\n");
-            // printf("MULTIPLICACION\n");
             t_arbol factor = desapilar();
             t_arbol termino = desapilar();
             arbolTermino = (*crear_nodo("*", &termino, &factor));
@@ -521,22 +502,18 @@ termino:
 factor: 
       ID
       {
-            // printf("1.1\n");
             if(!existe_simbolo($<str_val>1)){
                   printf("NO SE DECLARO LA VARIABLE - %s - EN LA SECCION DE DEFINICIONES\n",$<str_val>1);
                   yyerror();
             }
             ultima_expresion = simbolo_busqueda.tipo_dato;
-            // printf("VARIABLE USADA: %s\n", $<str_val>1);
             arbolFactor = (*crear_hoja($<str_val>1));
             apilar(&arbolFactor);
       }
       |ENTERO 
       {
-            // printf("1.2\n");
             guardar_cte_int($<int_val>1);
             ultima_expresion = "int";
-            // printf("CONSTANTE ENTERA: %d\n",$<int_val>1);
             char aux[100];
             sprintf(aux,"%d",$<int_val>1);
             arbolFactor = (*crear_hoja(aux));
@@ -544,11 +521,9 @@ factor:
       }
       |REAL
       {
-            // printf("1.3\n");
             float valor = $<real_val>1;
             guardar_cte_float(valor);
             ultima_expresion = "float";  
-            // printf("CONSTANTE REAL: %f\n",valor);
             char aux[100];
             sprintf(aux,"%f",$<real_val>1);
             arbolFactor = (*crear_hoja(aux));
@@ -556,7 +531,6 @@ factor:
       }
       |P_A expresion P_C
       {
-            // printf("1.4\n");
             arbolFactor = arbolExpresion;
             apilar(&arbolFactor);
       }
