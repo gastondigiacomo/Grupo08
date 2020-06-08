@@ -1,0 +1,38 @@
+DEFVAR
+    float : b;c;r;a;z;x;pepe1;pepe2
+    int : asda; var1
+    float: pepe;pepe3;pepe4
+    string : a2a;ssd;d
+ENDDEF
+***/AS
+  ***/ /***
+SD/***
+b = 9999999.0
+d = "4.5"
+display d
+var1 = 10
+z = 3
+ssd = "OK"
+display "estoy mostrandome por pantalla"
+if(a==b){
+    a = b * 9999
+    display a
+    b = 4.2
+    display b
+}
+if(a==z) {
+    z = z + 1
+}
+else {
+    z = z - 1
+}
+while(!a==c){
+    b = b + 4
+    while(asda < 4 && var1 >= 0) {
+        get a2a
+        display a2a
+        var1-=1
+    }
+}
+b-=5
+between(a,[b;b+4])
