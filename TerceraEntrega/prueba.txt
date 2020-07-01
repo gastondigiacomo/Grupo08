@@ -1,0 +1,17 @@
+DEFVAR
+    float : b;c;r;z;x;pepe1;pepe2
+    int : asda; var1;a;var2
+    float: pepe;pepe3;pepe4
+    string : a2a;ssd;d
+ENDDEF
+***/AS
+  ***/ /***
+SD/***
+var1 = 3 + 4 * var2
+if(a!=0){
+  a-=1
+  b*=1
+}
+else{
+  a+=1
+}
