@@ -9,9 +9,15 @@ ENDDEF
 SD/***
 var1 = 3 + 4 * var2
 if(a!=0){
-  a-=1
-  b*=1
+  a+=1
+  if(b==2){
+    c*=3
+  }
+  else{
+    c/=3
+  }
 }
 else{
-  a+=1
+  a-=1
 }
+var2 = 5

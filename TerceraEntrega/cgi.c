@@ -5,13 +5,8 @@
 #include <string.h>
 #include <math.h>
 
-#define MAYOR 50
-#define MAYOROIGUAL 51
-#define MENOR 52
-#define MENOROIGUAL 53
-#define IGUAL 54
-#define DISTINTO 55
 #define COUNT 10
+
 typedef struct a_nodo{
     char dato[100];
     struct a_nodo *izq,
@@ -37,6 +32,26 @@ typedef struct s_nodo_pila{
 typedef p_nodo* t_pila;
 
 char ultimoComparador[10];
+
+char ultimaEtiqueta[100];
+
+int numeroVariables = 1;
+
+int anteriorAuxFlag = 1;
+
+int flagJump = 1;
+
+int numeroEtiqueta = 0;
+
+typedef struct s_nodo_pila_ASM{
+    char dato[100];
+    struct s_nodo_pila_ASM * sig;
+}p_nodo_ASM;
+
+typedef p_nodo_ASM* t_pila_ASM;
+
+t_pila_ASM pila_ASM;
+
 t_pila pila;
 t_pila pilaBloque;
 
@@ -58,10 +73,10 @@ t_arbol desacolar();
 t_cola cola;
 t_cola fin_cola;
 
-void imprimirAssembler(t_arbol root);
-int recorrerArbol(t_arbol root);
-int numeroVariables = 1;
-int anteriorAux = 0;
+void imprimirAssembler(t_arbol root, char* etiq);
+int recorrerArbol(t_arbol root, char* etiq);
+
+
 t_arbol arbolFactor; 
 t_arbol arbolExpresion; 
 t_arbol arbolTermino;
@@ -93,6 +108,38 @@ int cant_pila_aux = 0;
 char* pila_polaca[5000];
 int pila_auxiliar[100];
 
+char* desapilarASM();
+void vaciarPilaASM(t_pila_ASM *p);
+void apilarASM(char* string);
+
+char* desapilarASM(){
+    p_nodo_ASM * aux;
+    char* auxDato;
+    auxDato = malloc(sizeof(strlen(aux->dato))+1);
+
+
+    aux = pila_ASM;
+    pila_ASM = aux->sig;
+    strcpy(auxDato, aux->dato);
+    free(aux);
+    return auxDato;
+}
+
+void vaciarPilaASM(t_pila_ASM *p){
+    p_nodo_ASM* aux;
+    while(*p){
+        aux = *p;
+        *p = aux->sig;
+        free(aux);
+    }
+}
+
+void apilarASM(char* string) {
+    p_nodo_ASM* nue = (p_nodo_ASM*) malloc(sizeof(p_nodo_ASM));
+    strcpy(nue->dato,string);
+    nue->sig = pila_ASM;
+    pila_ASM = nue;
+}
 
 t_arbol* crear_hoja(char* raiz){
 	// printf("----crearHoja : %s\n", raiz);
@@ -338,164 +385,204 @@ void print2D(t_arbol root)
 
 
 
-int recorrerArbol(t_arbol root) 
+int recorrerArbol(t_arbol root, char* etiq) 
 { 
-    printf("-----RECORRIENDO: %s\n",root->dato);
+    // printf("-----RECORRIENDO: %s\n",root->dato);
     // Base case 
     if (root == NULL) 
         return 1; 
-  
+    char etiquetaIzq[100];
+    char etiquetaDer[100];
     // Increase distance between levels 
     int count = 0;
     int izq = 0;
     int der = 0;
-    // Process der child first 
-    izq = recorrerArbol(root->izq); 
-  
-    // Print current node after space 
-    // count 
-    // Process izq child 
-    der = recorrerArbol(root->der);
+    if(strcmp(root->dato,"BLOQUE") == 0){
+        sprintf(etiquetaIzq,"ET_%d",numeroEtiqueta);
+        numeroEtiqueta++;
+        sprintf(etiquetaDer,"ET_%d",numeroEtiqueta);
+        numeroEtiqueta++;
+        apilarASM(etiquetaDer);
+    }
+    else if(strcmp(root->dato,"CUERPO") == 0){
+        strcpy(etiquetaIzq, etiq);
+        sprintf(etiquetaDer,"ET_ELSE_%d",numeroEtiqueta);
+        printf("\t%s ET_ELSE_%d\n",ultimoComparador, numeroEtiqueta);
+        numeroEtiqueta++;
+        flagJump = 0;
+    }
+    else {
+        strcpy(etiquetaIzq, etiq);
+        strcpy(etiquetaDer, etiq);
+    }
+
+
+    izq = recorrerArbol(root->izq, etiquetaIzq); 
+    der = recorrerArbol(root->der, etiquetaDer);
 
     count = izq + der;
-    if(strcmp(root->dato,"BLOQUE")==0){
-        anteriorAux = 0;
-    }
+
     if(count != 2){
-        printf("\nINGRESO : %s\n\n",root->dato);
-        imprimirAssembler(root);
+        if(strcmp(root->dato,"BLOQUE") != 0 && strcmp(root->dato,"IF") != 0 && strcmp(root->dato,"CUERPO") != 0) {
+            // printf("\nINGRESO : %s\n\n",root->dato);
+            imprimirAssembler(root, etiq);
+        }
+
     }
 
 } 
 
-void imprimirAssembler(t_arbol root) {
-    // printf("%s %s %s\n", root->izq->dato, root->dato, root->der->dato);
-    if(strcmp(root->dato,"IF") == 0){
-        if(strcmp(root->der->dato,"CUERPO") == 0){
-            printf("%s etiqueta else\n", ultimoComparador);
-        }
+void imprimirAssembler(t_arbol root, char* etiq) {
+    int antAux;
+    if(strcmp(ultimaEtiqueta, "") == 0){
+        strcpy(ultimaEtiqueta, etiq);
+        antAux = 0;
+        printf("\n%s:\n", etiq);
     }
-    else if(esComparador(root->dato)){
+    else if(strcmp(ultimaEtiqueta, etiq) != 0 && flagJump != 0){
+        antAux = 0;
+        strcpy(ultimaEtiqueta, etiq);
+        char aux[100];
+        strcpy(aux,desapilarASM());
+        if(strstr(etiq,"ELSE")){
+            apilarASM(aux);
+        }
+        printf("\tJMP %s\n",aux);
+        printf("\n%s:\n", etiq);
+    }
+    else if(anteriorAuxFlag == 0){
+        antAux = 0;
+    }
+    else {
+        antAux = 1;
+    }
+    if(flagJump == 0){
+        if(strcmp(ultimaEtiqueta, etiq) != 0){
+            printf("\n%s:\n", etiq);
+            strcpy(ultimaEtiqueta, etiq);
+        }
+        flagJump = 1;
+    }
+    // printf("%s %s %s\n", root->izq->dato, root->dato, root->der->dato);
+    
+    if(esComparador(root->dato)){
+        anteriorAuxFlag = 0;
         if(strcmp(root->dato, "==") == 0){
-            printf("FLD %s\n",root->izq->dato);
-            printf("FCOMP %s\n",root->der->dato);
-            printf("fstsw ax\n");
-            printf("sahf\n");
-            printf("JNE etiqueta_else\n");
+            printf("\tFLD %s\n",root->izq->dato);
+            printf("\tFCOMP %s\n",root->der->dato);
+            printf("\tfstsw ax\n");
+            printf("\tsahf\n");
             strcpy(ultimoComparador,"JNE");
         }
         if(strcmp(root->dato, "!=") == 0){
-            printf("FLD %s\n",root->izq->dato);
-            printf("FCOMP %s\n",root->der->dato);
-            printf("fstsw ax\n");
-            printf("sahf\n");
-            printf("JE etiqueta else\n");
+            printf("\tFLD %s\n",root->izq->dato);
+            printf("\tFCOMP %s\n",root->der->dato);
+            printf("\tfstsw ax\n");
+            printf("\tsahf\n");
             strcpy(ultimoComparador,"JE");
         }
         if(strcmp(root->dato, ">") == 0){
-            printf("FLD %s\n",root->izq->dato);
-            printf("FCOMP %s\n",root->der->dato);
-            printf("fstsw ax\n");
-            printf("sahf\n");
-            printf("JNA etiqueta else\n");
+            printf("\tFLD %s\n",root->izq->dato);
+            printf("\tFCOMP %s\n",root->der->dato);
+            printf("\tfstsw ax\n");
+            printf("\tsahf\n");
             strcpy(ultimoComparador,"JNA");
         }
         if(strcmp(root->dato, "<") == 0){
-            printf("FLD %s\n",root->izq->dato);
-            printf("FCOMP %s\n",root->der->dato);
-            printf("fstsw ax\n");
-            printf("sahf\n");
-            printf("JNB etiqueta else\n");
+            printf("\tFLD %s\n",root->izq->dato);
+            printf("\tFCOMP %s\n",root->der->dato);
+            printf("\tfstsw ax\n");
+            printf("\tsahf\n");
             strcpy(ultimoComparador,"JNB");
         }
         if(strcmp(root->dato, ">=") == 0){
-            printf("FLD %s\n",root->izq->dato);
-            printf("FCOMP %s\n",root->der->dato);
-            printf("fstsw ax\n");
-            printf("sahf\n");
-            printf("JNAE etiqueta else\n");
+            printf("\tFLD %s\n",root->izq->dato);
+            printf("\tFCOMP %s\n",root->der->dato);
+            printf("\tfstsw ax\n");
+            printf("\tsahf\n");
             strcpy(ultimoComparador,"JNAE");
         }
         if(strcmp(root->dato, "<=") == 0){
-            printf("FLD %s\n",root->izq->dato);
-            printf("FCOMP %s\n",root->der->dato);
-            printf("fstsw ax\n");
-            printf("sahf\n");
-            printf("JNBE etiqueta else\n");
+            printf("\tFLD %s\n",root->izq->dato);
+            printf("\tFCOMP %s\n",root->der->dato);
+            printf("\tfstsw ax\n");
+            printf("\tsahf\n");
             strcpy(ultimoComparador,"JNBE");
         }
     }
     else if(strcmp(root->dato,"=")==0){
-        printf("FLD @aux%d\n",numeroVariables-1);
-        printf("fstp %s\n",root->izq->dato);
+        if(antAux == 1) {
+            printf("\tFLD @aux%d\n",numeroVariables-1);
+            printf("\tfstp %s\n",root->izq->dato);
+        }
+        else{
+            printf("\tFLD %s\n",root->der->dato);
+            printf("\tfstp %s\n",root->izq->dato);
+        }
     }
     else{
-        printf("FLD %s\n",root->izq->dato);
+        anteriorAuxFlag = 1;
+        printf("\tFLD %s\n",root->izq->dato);
         if(strcmp(root->dato,"+")==0){
-            if(anteriorAux == 1){
-                printf("FLD @aux%d\n",numeroVariables-1);
-                printf("FADD\n");
-                printf("fstp @aux%d\n",numeroVariables);
-                printf("ffree\n");
+            if(antAux == 1){
+                printf("\tFLD @aux%d\n",numeroVariables-1);
+                printf("\tFADD\n");
+                printf("\tfstp @aux%d\n",numeroVariables);
+                printf("\tffree\n");
             }
             else{
-                printf("FLD %s\n",root->der->dato);
-                printf("FADD\n");
-                printf("fstp @aux%d\n",numeroVariables);
-                printf("ffree\n");
+                printf("\tFLD %s\n",root->der->dato);
+                printf("\tFADD\n");
+                printf("\tfstp @aux%d\n",numeroVariables);
+                printf("\tffree\n");
             }
         }
         else if(strcmp(root->dato,"-")==0){
-            if(anteriorAux == 1){
-                printf("FLD @aux%d\n",numeroVariables-1);
-                printf("FSUB\n");
-                printf("fstp @aux%d\n",numeroVariables);
-                printf("ffree\n");
+            if(antAux == 1){
+                printf("\tFLD @aux%d\n",numeroVariables-1);
+                printf("\tFSUB\n");
+                printf("\tfstp @aux%d\n",numeroVariables);
+                printf("\tffree\n");
             }
             else{
-                printf("FLD %s\n",root->der->dato);
-                printf("FSUB\n");
-                printf("fstp @aux%d\n",numeroVariables);
-                printf("ffree\n");
+                printf("\tFLD %s\n",root->der->dato);
+                printf("\tFSUB\n");
+                printf("\tfstp @aux%d\n",numeroVariables);
+                printf("\tffree\n");
             }
 
         }
         else if(strcmp(root->dato,"*")==0){
-            if(anteriorAux == 1){
-                printf("FLD @aux%d\n",numeroVariables-1);
-                printf("FMUL\n");
-                printf("fstp @aux%d\n",numeroVariables);
-                printf("ffree\n");
+            if(antAux == 1){
+                printf("\tFLD @aux%d\n",numeroVariables-1);
+                printf("\tFMUL\n");
+                printf("\tfstp @aux%d\n",numeroVariables);
+                printf("\tffree\n");
             }
             else{
-                printf("FLD %s\n",root->der->dato);
-                printf("FMUL\n");
-                printf("fstp @aux%d\n",numeroVariables);
-                printf("ffree\n");
+                printf("\tFLD %s\n",root->der->dato);
+                printf("\tFMUL\n");
+                printf("\tfstp @aux%d\n",numeroVariables);
+                printf("\tffree\n");
             }
         }
         else if(strcmp(root->dato,"/")==0){
-            if(anteriorAux == 1){
-                printf("FLD @aux%d\n",numeroVariables-1);
-                printf("FDIV\n");
-                printf("fstp @aux%d\n",numeroVariables);
-                printf("ffree\n");
+            if(antAux == 1){
+                printf("\tFLD @aux%d\n",numeroVariables-1);
+                printf("\tFDIV\n");
+                printf("\tfstp @aux%d\n",numeroVariables);
+                printf("\tffree\n");
             }
             else{
-                printf("FLD %s\n",root->der->dato);
-                printf("FDIV\n");
-                printf("fstp @aux%d\n",numeroVariables);
-                printf("ffree\n");
+                printf("\tFLD %s\n",root->der->dato);
+                printf("\tFDIV\n");
+                printf("\tfstp @aux%d\n",numeroVariables);
+                printf("\tffree\n");
             }
-        }
-        if(isOperador(root->izq->dato)){
-            
-        }
-        if(anteriorAux == 0) {
-            anteriorAux = 1;
         }
         numeroVariables++;
     }
+    
     printf("\n");
 }
 

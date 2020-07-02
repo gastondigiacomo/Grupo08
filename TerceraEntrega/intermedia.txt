@@ -21,12 +21,6 @@ b
 b                                
 *                                
 1                                
-BLOQUE                           
-c                                
-=                                
-c                                
-/                                
-1                                
 CUERPO                           
 a                                
 =                                

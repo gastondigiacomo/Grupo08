@@ -45,7 +45,8 @@ start:
       programa
       {
             print2D(arbolPrograma);
-            recorrerArbol(arbolPrograma);
+            recorrerArbol(arbolPrograma, "ET_0");
+            printf("FIN\n");
       }
       ;
 
