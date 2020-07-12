@@ -42,6 +42,8 @@ typedef struct {
 simbolo ts[TAM_TABLA];
 simbolo simbolo_busqueda;
 
+int contadorString=0;
+
 FILE * file;
 int between_flag = 0;
 int cant_elem_ts = 0;
@@ -112,7 +114,10 @@ char* guardar_cte_string(char * valor) {
       char * nombre_constante = concat(nombre_variable, variable_sin_comillas);
 
       if(existe_simbolo(nombre_constante) == FALSE && cant_elem_ts <= TAM_TABLA){
-        strcpy(ts[cant_elem_ts].nombre,nombre_constante);
+        char nuevoNombre[10];
+        sprintf(nuevoNombre, "_String%d", contadorString);
+        contadorString++;
+        strcpy(ts[cant_elem_ts].nombre,nuevoNombre);
         ts[cant_elem_ts].longitud = strlen(variable_sin_comillas);
         strcpy(ts[cant_elem_ts].tipo_dato,C_STRING);
         strcpy(ts[cant_elem_ts].valor,valor);
