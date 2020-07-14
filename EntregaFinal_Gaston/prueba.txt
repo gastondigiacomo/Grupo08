@@ -1,0 +1,30 @@
+DEFVAR
+    float : r;d;z;x;pepe1;pepe2
+    int : a;b;c;var1;var2;var3;var4;var5;resul
+    float: pepe;pepe3;pepe4
+    string : a2a;ssd
+ENDDEF
+***/AS
+  ***/ /***
+SD/***
+a = 5
+b = 10
+if ( a < 10 ) {
+  a += 1
+}
+else {
+  a -= 1
+}
+while( b >= 0 ) {
+  b -= 1
+}
+while( b <= 10 ) {
+  b + = 1
+  if ( b == 5) {
+    resul = 1
+  }
+  else {
+    resul = 0
+  }
+}
+c = 10
