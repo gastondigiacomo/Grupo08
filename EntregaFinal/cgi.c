@@ -514,17 +514,17 @@ int recorrerArbol(t_arbol root)
     // A EVALUAR CUANDO RECORRIO EL HIJO IZQUIERDO
     //*************************************************************************************************************
     if(strcmp(root->dato,"CUERPO") == 0){ // IF CON ELSE
-        if(dobleWhile){
-              printf("\tJMP ET_%d\n\n",verTopeEtiqueta());
-              dobleWhile = 0;
-        }
-        else {
+        // if(dobleWhile){
+        //       printf("\tJMP ET_%d\n\n",verTopeEtiqueta());
+        //       dobleWhile = 0;
+        // }
+        // else {
             printf("\tJMP ET_%d\n\n",numeroEtiqueta+1);
             printf("ET_%d:\n",numeroEtiqueta);
             printf("--ET POR CUERPO Y JMP FLAG\n");
             numeroEtiqueta++;
             jumpFlag = 0;
-        }
+        // }
 
     }
     else if(strcmp(root->dato,"WHILE") == 0){ // SUMO UNO EN LA ETIQUETA PARA LA RAMA DERECHA
