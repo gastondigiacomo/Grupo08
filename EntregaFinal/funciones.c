@@ -5,9 +5,7 @@
 #include <string.h>
 #include <math.h>
 #include "array.c"
-#define C_STRING "C_STRING"
-#define C_FLOAT "C_FLOAT"
-#define C_INT "C_INT"
+#include "cgi.c"
 
 #define INITIAL_CAPACITY 1
 #define MAX_STRING_LENGTH 30
@@ -22,9 +20,9 @@
 //funciones tabla simbolos
 void crearTabla();
 void guardar_variables_ts();
-int guardar_cte_int(int valor);
+char* guardar_cte_int(int valor);
 char* guardar_cte_string(char * valor);
-int guardar_cte_float(float valor);
+char* guardar_cte_float(float valor);
 void guardar_ts();
 int existe_simbolo(char * comp);
 int verificar_asignacion(char * valor);
@@ -42,8 +40,6 @@ typedef struct {
 simbolo ts[TAM_TABLA];
 simbolo simbolo_busqueda;
 
-int contadorString=0;
-
 FILE * file;
 int between_flag = 0;
 int cant_elem_ts = 0;
@@ -54,6 +50,8 @@ char * ultima_expresion;
 char * ultimo_comparador;
 
 char * ultimo_operador;
+
+int contadorCteString = 0;
 
 void guardar_variables_ts(){
   int i = 0;
@@ -84,7 +82,7 @@ void crearTabla(){
   fclose(file);
 }
 
-int guardar_cte_int(int valor) {
+char* guardar_cte_int(int valor) {
       char  nombre_variable[] = "_";
       char constante_string[100];
       sprintf(constante_string,"%d",valor);
@@ -93,40 +91,35 @@ int guardar_cte_int(int valor) {
       if(existe_simbolo(nombre_constante) == FALSE && cant_elem_ts <= TAM_TABLA){
         strcpy(ts[cant_elem_ts].nombre,nombre_constante);
         ts[cant_elem_ts].longitud = 0;
-        strcpy(ts[cant_elem_ts].tipo_dato,C_INT);
+        strcpy(ts[cant_elem_ts].tipo_dato,"c_int");
         strcpy(ts[cant_elem_ts].valor,constante_string);
         cant_elem_ts++;
-        free(nombre_constante); 
-        return TRUE;
+        return nombre_constante;
       }
-      free(nombre_constante); 
-      return FALSE;
+      return "";
 }
 
 char* guardar_cte_string(char * valor) {
-      char nombre_variable[32] = "_";
+      char nombre_variable[32];
       //saca las comillas
-      char * variable_sin_comillas = malloc(sizeof(char)*100);
-      strcpy(variable_sin_comillas, valor);
-      variable_sin_comillas++;
-      variable_sin_comillas[strlen(variable_sin_comillas)-1] = 0;
+      sprintf(nombre_variable,"_cte_string_%d", contadorCteString);
+      
+      char * returnValue = malloc(sizeof(char)*100);
+      strcpy(returnValue, nombre_variable);
       //saca las comillas
-      char * nombre_constante = concat(nombre_variable, variable_sin_comillas);
 
-      if(existe_simbolo(nombre_constante) == FALSE && cant_elem_ts <= TAM_TABLA){
-        char nuevoNombre[10];
-        sprintf(nuevoNombre, "_String%d", contadorString);
-        contadorString++;
-        strcpy(ts[cant_elem_ts].nombre,nuevoNombre);
-        ts[cant_elem_ts].longitud = strlen(variable_sin_comillas);
-        strcpy(ts[cant_elem_ts].tipo_dato,C_STRING);
+      if(existe_simbolo(nombre_variable) == FALSE && cant_elem_ts <= TAM_TABLA){
+        strcpy(ts[cant_elem_ts].nombre,nombre_variable);
+        ts[cant_elem_ts].longitud = strlen(nombre_variable);
+        strcpy(ts[cant_elem_ts].tipo_dato,"c_string");
         strcpy(ts[cant_elem_ts].valor,valor);
         cant_elem_ts++;
+        contadorCteString++;
       }
-      return nombre_constante;
+      return returnValue;
 }
 
-int guardar_cte_float(float valor) {
+char* guardar_cte_float(float valor) {
       
       float constante = valor;
       char  nombre_variable[] = "_";
@@ -136,14 +129,12 @@ int guardar_cte_float(float valor) {
       if(existe_simbolo(nombre_constante) == FALSE && cant_elem_ts <= TAM_TABLA){
         strcpy(ts[cant_elem_ts].nombre,nombre_constante);
         ts[cant_elem_ts].longitud = 0;
-        strcpy(ts[cant_elem_ts].tipo_dato,C_FLOAT);
+        strcpy(ts[cant_elem_ts].tipo_dato,"c_float");
         strcpy(ts[cant_elem_ts].valor,constante_string);
         cant_elem_ts++;
-        free(nombre_constante);
-        return TRUE;
+        return nombre_constante;
       }
-      free(nombre_constante); // deallocate the string
-      return FALSE;
+      return "";
 }
 
 void guardar_ts(){

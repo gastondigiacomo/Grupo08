@@ -1,8 +1,6 @@
 
 %{
 #include "funciones.c"
-#include "cgi.c"
-#include "assembler.c"
 #include "y.tab.h"
 
 FILE  *yyin;
@@ -47,9 +45,7 @@ start:
       programa
       {
             print2D(arbolPrograma);
-            ImprimirArbol(arbolPrograma, "ET_0");
-			generarArchivoAssembler(arbolPrograma, "ET_0");
-            //recorrerArbol(arbolPrograma, "ET_0");
+            recorrerArbol(arbolPrograma);
             printf("FIN\n");
       }
       ;
@@ -158,17 +154,13 @@ sentencia:
 salida:
       DISPLAY ENTERO
       {
-            guardar_cte_int($<int_val>2);
-            char aux[100];
-            sprintf(aux,"%d",$<int_val>1);
+            char* aux = guardar_cte_int($<int_val>2);
             arbolDisplay = (*crear_hoja(aux));
             arbolDisplay = (*crear_nodo("DISPLAY", &arbolDisplay, NULL));
       }
       |DISPLAY REAL
       {
-            guardar_cte_float($<real_val>2);
-            char aux[100];
-            sprintf(aux,"%f",$<int_val>1);
+            char* aux = guardar_cte_float($<real_val>2);
             arbolDisplay = (*crear_hoja(aux));
             arbolDisplay = (*crear_nodo("DISPLAY", &arbolDisplay, NULL));
       }
