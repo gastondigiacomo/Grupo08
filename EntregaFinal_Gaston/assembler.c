@@ -36,7 +36,7 @@ void generarArchivoAssembler(t_arbol root, char* etiq) {
 
 	// Inicio de seccion codigo
 	fprintf(pFinal, ".CODE\n");
-	fprintf(pFinal, "\nMAIN:\n\n");
+	//fprintf(pFinal, "\nMAIN:\n\n");
 	fprintf(pFinal, "\tMOV EAX, @DATA\n");
 	fprintf(pFinal, "\tMOV DS, EAX\n");
 	fprintf(pFinal, "\tMOV ES, EAX\n\n");
