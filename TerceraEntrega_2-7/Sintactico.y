@@ -1,6 +1,6 @@
 
 %{
-#include "funciones.c"
+#include "assembler.c"
 #include "y.tab.h"
 
 FILE  *yyin;
@@ -45,8 +45,7 @@ start:
       programa
       {
             print2D(arbolPrograma);
-            generarASM(arbolPrograma, "ET_0");
-            //recorrerArbol(arbolPrograma, "ET_0");
+            generar_assembler();
             printf("FIN\n");
       }
       ;
@@ -155,17 +154,13 @@ sentencia:
 salida:
       DISPLAY ENTERO
       {
-            guardar_cte_int($<int_val>2);
-            char aux[100];
-            sprintf(aux,"%d",$<int_val>1);
+            char* aux = guardar_cte_int($<int_val>2);
             arbolDisplay = (*crear_hoja(aux));
             arbolDisplay = (*crear_nodo("DISPLAY", &arbolDisplay, NULL));
       }
       |DISPLAY REAL
       {
-            guardar_cte_float($<real_val>2);
-            char aux[100];
-            sprintf(aux,"%f",$<int_val>1);
+            char* aux = guardar_cte_float($<real_val>2);
             arbolDisplay = (*crear_hoja(aux));
             arbolDisplay = (*crear_nodo("DISPLAY", &arbolDisplay, NULL));
       }
@@ -232,7 +227,7 @@ asignacion:
       {
             char * nombre_cte_string = guardar_cte_string($<str_val>3);
             ultima_expresion = "string";
-            switch(verificar_asignacion($<str_val>1)){
+            switch(verificar_asignacion(nombre_cte_string)){
                   case 1:   printf("NO SE DECLARO LA VARIABLE - %s - EN LA SECCION DE DEFINICIONES\n",$<str_val>1);
                               free(nombre_cte_string);
                               yyerror();
@@ -515,21 +510,21 @@ factor:
       }
       |ENTERO 
       {
-            guardar_cte_int($<int_val>1);
+            char* nombre_cte_int = guardar_cte_int($<int_val>1);
             ultima_expresion = "int";
-            char aux[100];
-            sprintf(aux,"%d",$<int_val>1);
-            arbolFactor = (*crear_hoja(aux));
+            // char aux[100];
+            // sprintf(aux,"%d",$<int_val>1);
+            arbolFactor = (*crear_hoja(nombre_cte_int));
             apilar(&arbolFactor);
       }
       |REAL
       {
             float valor = $<real_val>1;
-            guardar_cte_float(valor);
+            char* nombre_cte_float = guardar_cte_float(valor);
             ultima_expresion = "float";  
-            char aux[100];
-            sprintf(aux,"%f",$<real_val>1);
-            arbolFactor = (*crear_hoja(aux));
+            // char aux[100];
+            // sprintf(aux,"%f",$<real_val>1);
+            arbolFactor = (*crear_hoja(nombre_cte_float));
             apilar(&arbolFactor);
       }
       |P_A expresion P_C

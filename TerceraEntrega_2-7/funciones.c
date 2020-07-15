@@ -5,7 +5,6 @@
 #include <string.h>
 #include <math.h>
 #include "array.c"
-#include "cgi.c"
 
 #define INITIAL_CAPACITY 1
 #define MAX_STRING_LENGTH 30
@@ -20,9 +19,9 @@
 //funciones tabla simbolos
 void crearTabla();
 void guardar_variables_ts();
-int guardar_cte_int(int valor);
+char* guardar_cte_int(int valor);
 char* guardar_cte_string(char * valor);
-int guardar_cte_float(float valor);
+char* guardar_cte_float(float valor);
 void guardar_ts();
 int existe_simbolo(char * comp);
 int verificar_asignacion(char * valor);
@@ -50,6 +49,8 @@ char * ultima_expresion;
 char * ultimo_comparador;
 
 char * ultimo_operador;
+
+int contadorCteString = 0;
 
 void guardar_variables_ts(){
   int i = 0;
@@ -80,63 +81,55 @@ void crearTabla(){
   fclose(file);
 }
 
-int guardar_cte_int(int valor) {
-      char  nombre_variable[] = "_";
+char* guardar_cte_int(int valor) {
+      char  prefijo[] = "_";
       char constante_string[100];
       sprintf(constante_string,"%d",valor);
 
-      char* nombre_constante = concat(nombre_variable, constante_string);
+      char* nombre_constante = concat(prefijo, constante_string);
       if(existe_simbolo(nombre_constante) == FALSE && cant_elem_ts <= TAM_TABLA){
         strcpy(ts[cant_elem_ts].nombre,nombre_constante);
         ts[cant_elem_ts].longitud = 0;
         strcpy(ts[cant_elem_ts].tipo_dato,"int");
         strcpy(ts[cant_elem_ts].valor,constante_string);
         cant_elem_ts++;
-        free(nombre_constante); 
-        return TRUE;
+        return nombre_constante;
       }
-      free(nombre_constante); 
-      return FALSE;
+      return "";
 }
 
 char* guardar_cte_string(char * valor) {
-      char nombre_variable[32] = "_";
-      //saca las comillas
-      char * variable_sin_comillas = malloc(sizeof(char)*100);
-      strcpy(variable_sin_comillas, valor);
-      variable_sin_comillas++;
-      variable_sin_comillas[strlen(variable_sin_comillas)-1] = 0;
-      //saca las comillas
-      char * nombre_constante = concat(nombre_variable, variable_sin_comillas);
-
+      char nombre_constante[32];
+      sprintf(nombre_constante,"_cte_string_%d", contadorCteString);
+      char * returnValue = malloc(sizeof(char)*100);
+      strcpy(returnValue, nombre_constante);
       if(existe_simbolo(nombre_constante) == FALSE && cant_elem_ts <= TAM_TABLA){
         strcpy(ts[cant_elem_ts].nombre,nombre_constante);
-        ts[cant_elem_ts].longitud = strlen(variable_sin_comillas);
+        ts[cant_elem_ts].longitud = strlen(nombre_constante);
         strcpy(ts[cant_elem_ts].tipo_dato,"string");
-        strcpy(ts[cant_elem_ts].valor,variable_sin_comillas);
+        strcpy(ts[cant_elem_ts].valor,valor);
         cant_elem_ts++;
+        contadorCteString++;
       }
-      return nombre_constante;
+      return returnValue;
 }
 
-int guardar_cte_float(float valor) {
+char* guardar_cte_float(float valor) {
       
       float constante = valor;
-      char  nombre_variable[] = "_";
+      char  prefijo[] = "_";
       char constante_string[100];
       sprintf(constante_string,"%f",constante);
-      char* nombre_constante = concat(nombre_variable, constante_string);
+      char* nombre_constante = concat(prefijo, constante_string);
       if(existe_simbolo(nombre_constante) == FALSE && cant_elem_ts <= TAM_TABLA){
         strcpy(ts[cant_elem_ts].nombre,nombre_constante);
         ts[cant_elem_ts].longitud = 0;
         strcpy(ts[cant_elem_ts].tipo_dato,"float");
         strcpy(ts[cant_elem_ts].valor,constante_string);
         cant_elem_ts++;
-        free(nombre_constante);
-        return TRUE;
+        return nombre_constante;
       }
-      free(nombre_constante); // deallocate the string
-      return FALSE;
+      return "";
 }
 
 void guardar_ts(){
@@ -200,29 +193,3 @@ char* concat(const char *s1, const char *s2)
     memcpy(result + len1, s2, len2 + 1); // +1 to copy the null-terminator
     return result;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

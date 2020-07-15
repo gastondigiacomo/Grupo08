@@ -1,24 +1,25 @@
 NOMBRE|TIPODATO|VALOR|LONGITUD
-b|float|-|-
-c|float|-|-
 r|float|-|-
+d|float|-|-
 z|float|-|-
 x|float|-|-
 pepe1|float|-|-
 pepe2|float|-|-
-asda|int|-|-
-var1|int|-|-
 a|int|-|-
+b|int|-|-
+c|int|-|-
+var1|int|-|-
 var2|int|-|-
+var3|int|-|-
+var4|int|-|-
+var5|int|-|-
+resul|int|-|-
 pepe|float|-|-
 pepe3|float|-|-
 pepe4|float|-|-
-a2a|string|-|-
-ssd|string|-|-
-d|string|-|-
-_3|int|3|-
+variable_string_1|string|-|-
+variable_string_2|string|-|-
+_cte_string_0|string|"A VER SI SALE"|13
+_cte_string_1|string|"INGRESE TEXTO"|13
 _4|int|4|-
-_0|int|0|-
-_1|int|1|-
-_2|int|2|-
 _5|int|5|-
