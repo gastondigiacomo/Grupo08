@@ -1,0 +1,29 @@
+NOMBRE|TIPODATO|VALOR|LONGITUD
+r|float|-|-
+d|float|-|-
+z|float|-|-
+x|float|-|-
+pepe1|float|-|-
+pepe2|float|-|-
+a|int|-|-
+b|int|-|-
+c|int|-|-
+var1|int|-|-
+var2|int|-|-
+var3|int|-|-
+var4|int|-|-
+var5|int|-|-
+resul|int|-|-
+pepe|float|-|-
+pepe3|float|-|-
+pepe4|float|-|-
+variable_string_1|string|-|-
+variable_string_2|string|-|-
+_cte_string_0|string|"HOLA"|13
+_cte_string_1|string|"INGRESE TEXTO"|13
+_cte_string_2|string|"INGRESE UN NUM ENTRE 10 y 20"|13
+_10|int|10|-
+_20|int|20|-
+_cte_string_3|string|"dije un NUM entre 10 y 20"|13
+_0|int|0|-
+_1|int|1|-

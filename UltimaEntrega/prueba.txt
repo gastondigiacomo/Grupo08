@@ -1,0 +1,25 @@
+DEFVAR
+    float : r;d;z;x;pepe1;pepe2
+    int : a;b;c;var1;var2;var3;var4;var5;resul
+    float: pepe;pepe3;pepe4
+    string : variable_string_1; variable_string_2
+ENDDEF
+***/AS
+  ***/ /***
+SD/***
+variable_string_2 = "HOLA"
+display variable_string_2
+display a
+display "INGRESE TEXTO"
+get variable_string_2
+display variable_string_2
+display "INGRESE UN NUM ENTRE 10 y 20"
+get b
+while(b < 10 || b > 20){
+  display "dije un NUM entre 10 y 20"
+  get b
+}
+while(b >= 0) {
+  display b
+  b-=1
+}
