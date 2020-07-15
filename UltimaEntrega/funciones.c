@@ -25,7 +25,7 @@ char* guardar_cte_float(float valor);
 void guardar_ts();
 int existe_simbolo(char * comp);
 int verificar_asignacion(char * valor);
-
+int existe_between = 0;
 //funciones complementarias
 char* concat(const char *s1, const char *s2);
 

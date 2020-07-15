@@ -19,9 +19,10 @@ pepe3|float|-|-
 pepe4|float|-|-
 variable_string_1|string|-|-
 variable_string_2|string|-|-
-_cte_string_0|string|"HOLA"|13
-_cte_string_1|string|"INGRESE TEXTO"|13
-_cte_string_2|string|"INGRESE UN NUM ENTRE 10 y 20"|13
-_8|int|8|-
-_0|int|0|-
+_cte_string_0|string|"INGRESE UN NUM"|13
+_3|int|3|-
+_10|int|10|-
 _1|int|1|-
+_0|int|0|-
+_cte_string_1|string|"APROBAMOS"|13
+_cte_string_2|string|"NO APROBAMOS"|13

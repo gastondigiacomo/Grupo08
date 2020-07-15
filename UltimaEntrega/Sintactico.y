@@ -366,6 +366,7 @@ condicion:
       }
       |between
       {
+            existe_between = 1;
             between_flag = 1;
             arbolCondicion = (*crear_hoja("0"));
             arbolCondicion = (*crear_nodo("!=",&id_aux,&arbolCondicion));
@@ -396,13 +397,14 @@ between:
             t_arbol limite_sup = desapilar();
             t_arbol limite_inf = desapilar();
 
-            char* ID_AUX = "ID_AUX";
+            char* ID_AUX = "@ID_AUX";
             t_arbol aux;
 
             id_aux = (*crear_hoja(ID_AUX));
-            
-            t_arbol verdadero = (*crear_hoja("1"));
-            t_arbol falso = (*crear_hoja("0"));
+            char* uno = guardar_cte_int(1);
+            char* cero = guardar_cte_int(0);
+            t_arbol verdadero = (*crear_hoja(uno));
+            t_arbol falso = (*crear_hoja(cero));
 
             verdadero = (*crear_nodo("=", &id_aux, &verdadero));
             falso = (*crear_nodo("=", &id_aux, &falso));

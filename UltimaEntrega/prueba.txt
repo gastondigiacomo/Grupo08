@@ -7,20 +7,12 @@ ENDDEF
 ***/AS
   ***/ /***
 SD/***
-variable_string_2 = "HOLA"
-display variable_string_2
-display a
-display "INGRESE TEXTO"
-get variable_string_2
-display variable_string_2
-display "INGRESE UN NUM ENTRE 10 y 20"
+
+display "INGRESE UN NUM"
 get b
-while(b < 8) {
-    display b
-    a = b
-    while(a >= 0){
-      display a
-      a-=1
-    }
-    b+=1
+if( between(b,[3;10]) ){
+  display "APROBAMOS"
+}
+else{
+  display "NO APROBAMOS"
 }

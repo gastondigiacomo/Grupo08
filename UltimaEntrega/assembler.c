@@ -147,6 +147,9 @@ void imprimir_code_assembler() {
 void imprimir_data_assembler() {
     fprintf(archivo_final_asm, "\n%s\n",".DATA");
     fprintf(archivo_final_asm, "\t%-15s \t %s \t\t\t %s\n", "NEW_LINE", "db", "0AH,0DH,'$'");
+    if(existe_between){
+        fprintf(archivo_final_asm, "\t%-15s \t %s \t\t\t %s\n", "@ID_AUX", "dd", "?");
+    }
     int i = 0;
     char* tipo_dato;
     int es_constante;
@@ -388,6 +391,7 @@ void escribir_asignacion_asm(char* izq, char* der) {
 }
 
 void escribir_if_asm() {
+    desapilar_comparacion_asm();
     char* etiqueta_iteracion = desapilar_iteracion_asm();
     fprintf(archivo_final_asm,"%s:\n",etiqueta_iteracion);
 }

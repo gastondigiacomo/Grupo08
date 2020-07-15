@@ -8,10 +8,9 @@ include number.asm
 
 .DATA
 	@aux_0          	 dd 			 ?
-	@aux_1          	 dd 			 ?
-	@aux_2          	 dd 			 ?
 
 	NEW_LINE        	 db 			 0AH,0DH,'$'
+	@ID_AUX         	 dd 			 ?
 	r               	 dd 			 ?
 	d               	 dd 			 ?
 	z               	 dd 			 ?
@@ -32,12 +31,13 @@ include number.asm
 	pepe4           	 dd 			 ?
 	variable_string_1 	 dd 			 ?
 	variable_string_2 	 dd 			 ?
-	_cte_string_0   	 db 			 "HOLA",10,13,'$'
-	_cte_string_1   	 db 			 "INGRESE TEXTO",10,13,'$'
-	_cte_string_2   	 db 			 "INGRESE UN NUM ENTRE 10 y 20",10,13,'$'
-	_8              	 dd 			 8.0
-	_0              	 dd 			 0.0
+	_cte_string_0   	 db 			 "INGRESE UN NUM",10,13,'$'
+	_3              	 dd 			 3.0
+	_10             	 dd 			 10.0
 	_1              	 dd 			 1.0
+	_0              	 dd 			 0.0
+	_cte_string_1   	 db 			 "APROBAMOS",10,13,'$'
+	_cte_string_2   	 db 			 "NO APROBAMOS",10,13,'$'
 	                	  			 
 .CODE
 START:
@@ -45,68 +45,53 @@ MOV EAX, @DATA
 MOV DS, EAX
 MOV ES, EAX
 
-	LEA EAX, _cte_string_0
-	MOV variable_string_2, EAX
 
-	DisplayString variable_string_2
-	DisplayString NEW_LINE
-
-	DisplayFloat a,0
-	DisplayString NEW_LINE
-
-	DisplayString _cte_string_1
-	DisplayString NEW_LINE
-
-	GetString variable_string_2
-
-	DisplayString variable_string_2
-	DisplayString NEW_LINE
-
-	DisplayString _cte_string_2
+	DisplayString _cte_string_0
 	DisplayString NEW_LINE
 
 	GetFloat b
 ET_0:
 	FLD b
-	FCOMP _8
+	FCOMP _3
 	fstsw ax
 	sahf
-	JNB X_0
-
-	DisplayFloat b,0
-	DisplayString NEW_LINE
-	FLD b
-	fstp a
-	ffree
+	JNAE X_0
 ET_1:
-	FLD a
-	FCOMP _0
+	FLD b
+	FCOMP _10
 	fstsw ax
 	sahf
-	JNAE X_1
-
-	DisplayFloat a,0
-	DisplayString NEW_LINE
-	FLD a
+	JNBE X_1
 	FLD _1
-	FSUB
-	fstp @aux_1
+	fstp @ID_AUX
 	ffree
-	FLD @aux_1
-	fstp a
-	ffree
-	JMP ET_1
+	JMP X_2
 X_1:
-	FLD b
-	FLD _1
-	FADD
-	fstp @aux_2
+	FLD _0
+	fstp @ID_AUX
 	ffree
-	FLD @aux_2
-	fstp b
-	ffree
-	JMP ET_0
+X_2:
+	JMP X_3
 X_0:
+	FLD _0
+	fstp @ID_AUX
+	ffree
+X_3:
+ET_2:
+	FLD @ID_AUX
+	FCOMP 0
+	fstsw ax
+	sahf
+	JE X_4
+
+	DisplayString _cte_string_1
+	DisplayString NEW_LINE
+	JMP X_5
+X_4:
+
+	DisplayString _cte_string_2
+	DisplayString NEW_LINE
+X_5:
 
 	mov ah, 1 ; pausa, espera que oprima una tecla
 	int 21h ; AH=1 es el servicio de lectura
