@@ -15,11 +15,12 @@ get variable_string_2
 display variable_string_2
 display "INGRESE UN NUM ENTRE 10 y 20"
 get b
-while(b < 10 || b > 20){
-  display "dije un NUM entre 10 y 20"
-  get b
-}
-while(b >= 0) {
-  display b
-  b-=1
+while(b < 8) {
+    display b
+    a = b
+    while(a >= 0){
+      display a
+      a-=1
+    }
+    b+=1
 }

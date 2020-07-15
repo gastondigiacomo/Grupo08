@@ -93,9 +93,8 @@ char* guardar_cte_int(int valor) {
         strcpy(ts[cant_elem_ts].tipo_dato,"int");
         strcpy(ts[cant_elem_ts].valor,constante_string);
         cant_elem_ts++;
-        return nombre_constante;
       }
-      return "";
+      return nombre_constante;
 }
 
 char* guardar_cte_string(char * valor) {
@@ -126,10 +125,9 @@ char* guardar_cte_float(float valor) {
         ts[cant_elem_ts].longitud = 0;
         strcpy(ts[cant_elem_ts].tipo_dato,"float");
         strcpy(ts[cant_elem_ts].valor,constante_string);
-        cant_elem_ts++;
-        return nombre_constante;
+        cant_elem_ts++; 
       }
-      return "";
+      return nombre_constante;
 }
 
 void guardar_ts(){

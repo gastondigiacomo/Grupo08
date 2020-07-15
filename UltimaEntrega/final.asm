@@ -9,6 +9,7 @@ include number.asm
 .DATA
 	@aux_0          	 dd 			 ?
 	@aux_1          	 dd 			 ?
+	@aux_2          	 dd 			 ?
 
 	NEW_LINE        	 db 			 0AH,0DH,'$'
 	r               	 dd 			 ?
@@ -34,9 +35,7 @@ include number.asm
 	_cte_string_0   	 db 			 "HOLA",10,13,'$'
 	_cte_string_1   	 db 			 "INGRESE TEXTO",10,13,'$'
 	_cte_string_2   	 db 			 "INGRESE UN NUM ENTRE 10 y 20",10,13,'$'
-	_10             	 dd 			 10.0
-	_20             	 dd 			 20.0
-	_cte_string_3   	 db 			 "dije un NUM entre 10 y 20",10,13,'$'
+	_8              	 dd 			 8.0
 	_0              	 dd 			 0.0
 	_1              	 dd 			 1.0
 	                	  			 
@@ -69,42 +68,45 @@ MOV ES, EAX
 	GetFloat b
 ET_0:
 	FLD b
-	FCOMP _10
+	FCOMP _8
 	fstsw ax
 	sahf
 	JNB X_0
-ET_1:
-	FLD b
-	FCOMP _20
-	fstsw ax
-	sahf
-	JNA X_1
-
-	DisplayString _cte_string_3
-	DisplayString NEW_LINE
-
-	GetFloat b
-	JMP ET_1
-X_1:
-ET_2:
-	FLD b
-	FCOMP _0
-	fstsw ax
-	sahf
-	JNAE X_2
 
 	DisplayFloat b,0
 	DisplayString NEW_LINE
 	FLD b
+	fstp a
+	ffree
+ET_1:
+	FLD a
+	FCOMP _0
+	fstsw ax
+	sahf
+	JNAE X_1
+
+	DisplayFloat a,0
+	DisplayString NEW_LINE
+	FLD a
 	FLD _1
 	FSUB
 	fstp @aux_1
 	ffree
 	FLD @aux_1
+	fstp a
+	ffree
+	JMP ET_1
+X_1:
+	FLD b
+	FLD _1
+	FADD
+	fstp @aux_2
+	ffree
+	FLD @aux_2
 	fstp b
 	ffree
-	JMP ET_2
-X_2:
+	JMP ET_0
+X_0:
 
 	mov ah, 1 ; pausa, espera que oprima una tecla
 	int 21h ; AH=1 es el servicio de lectura
