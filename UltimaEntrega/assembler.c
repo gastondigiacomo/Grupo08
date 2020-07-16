@@ -20,7 +20,7 @@
 #define NO_ES_CUERPO                    399
 #define ES_CUERPO                       400
 #define NOMBRE_ARCHIVO_AUX_ASM          "auxiliar.asm"
-#define NOMBRE_ARCHIVO_ASM              "final.asm"
+#define NOMBRE_ARCHIVO_ASM              "Final.asm"
 #define NOMBRE_ETIQUETA_COMPARACION     "ET_"
 #define NOMBRE_ETIQUETA_ITERACION       "X_"
 #define ES_SIMBOLO_ERRONEO              499
@@ -100,6 +100,7 @@ void generar_assembler() {
 
     fclose(archivo_final_asm);
     agregar_aux_a_data();
+    remove(NOMBRE_ARCHIVO_AUX_ASM);
 }
 
 void agregar_aux_a_data() {

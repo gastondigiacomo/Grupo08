@@ -1,22 +1,73 @@
 DEFVAR
-    float : r;d;z;x;pepe1;pepe2
-    int : a;b;c;var1;var2;var3;var4;var5;resul
-    float: pepe;pepe3;pepe4
+    float : r;d;z
+    int : a;b;c;alumnos;nota;nota2;flagn1;flagn2
+    float: float1
     string : variable_string_1; variable_string_2
 ENDDEF
 ***/AS
   ***/ /***
 SD/***
 
-a = 0
-while( a < 4 && a < 2){
-  display "ENTRO EN LA OTRA"
-  display a
-  a+=1
-}
-if(a == 3){
-  display "a igual a 3"
+display "COMPILADOR GRUPO 08"
+
+a=0
+display "Ingrese cantidad de alumnos"
+get alumnos
+
+if(!alumnos>=0){
+display "ALUMNOS IGUAL A CERO"
+display "NO SE EJECUTA EL PROGRAMA"
 }
 else{
-  display "a distinto de 3"
+
+
+while (a < alumnos)
+ {
+  display "Ingrese nota primer parcial"
+  get nota
+  if (nota==3 || nota==6 ){
+	display "Falto muy poquito"}
+  if(between(nota,[7;10])) 
+    {
+     flagn1=1
+    }
+    else
+    {
+     flagn1=0
+    }
+
+
+    
+  display "Ingrese nota segundo parcial"
+  get nota2
+  if (nota2==3 || nota2==6 ){
+	display "Falto muy poquito"}
+  if(between(nota2,[7;10])) 
+    {
+     flagn2=1
+    }
+    else
+    {
+     flagn2=0
+    }
+  a+=1
+  b=2
+  if ( flagn1 == 1 && flagn2 == 1)
+    {    
+     display "El alumno esta PROMOCIONADO"
+    }
+  else
+    {
+     display "El alumno NO esta PROMOCIONADO"
+    }
+   while(b < 3)
+    {
+     display "IOIOIOIOIOIOIOIOIOIO"
+     b+=1
+    }    
 }
+}
+
+
+
+

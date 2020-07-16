@@ -2,28 +2,32 @@ NOMBRE|TIPODATO|VALOR|LONGITUD
 r|float|-|-
 d|float|-|-
 z|float|-|-
-x|float|-|-
-pepe1|float|-|-
-pepe2|float|-|-
 a|int|-|-
 b|int|-|-
 c|int|-|-
-var1|int|-|-
-var2|int|-|-
-var3|int|-|-
-var4|int|-|-
-var5|int|-|-
-resul|int|-|-
-pepe|float|-|-
-pepe3|float|-|-
-pepe4|float|-|-
+alumnos|int|-|-
+nota|int|-|-
+nota2|int|-|-
+flagn1|int|-|-
+flagn2|int|-|-
+float1|float|-|-
 variable_string_1|string|-|-
 variable_string_2|string|-|-
+_cte_string_0|string|"COMPILADOR GRUPO 08"|13
 _0|int|0|-
-_4|int|4|-
-_2|int|2|-
-_cte_string_0|string|"ENTRO EN LA OTRA"|13
-_1|int|1|-
+_cte_string_1|string|"Ingrese cantidad de alumnos"|13
+_cte_string_2|string|"ALUMNOS IGUAL A CERO"|13
+_cte_string_3|string|"NO SE EJECUTA EL PROGRAMA"|13
+_cte_string_4|string|"Ingrese nota primer parcial"|13
 _3|int|3|-
-_cte_string_1|string|"a igual a 3"|13
-_cte_string_2|string|"a distinto de 3"|13
+_6|int|6|-
+_cte_string_5|string|"Falto muy poquito"|13
+_7|int|7|-
+_10|int|10|-
+_1|int|1|-
+_cte_string_6|string|"Ingrese nota segundo parcial"|13
+_cte_string_7|string|"Falto muy poquito"|13
+_2|int|2|-
+_cte_string_8|string|"El alumno esta PROMOCIONADO"|13
+_cte_string_9|string|"El alumno NO esta PROMOCIONADO"|-
+_cte_string_10|string|"IOIOIOIOIOIOIOIOIOIO"|14
