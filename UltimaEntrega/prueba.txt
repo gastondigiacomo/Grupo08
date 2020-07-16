@@ -8,11 +8,15 @@ ENDDEF
   ***/ /***
 SD/***
 
-display "INGRESE UN NUM"
-get b
-if( between(b,[3;10]) ){
-  display "APROBAMOS"
+a = 0
+while( a < 4 && a < 2){
+  display "ENTRO EN LA OTRA"
+  display a
+  a+=1
+}
+if(a == 3){
+  display "a igual a 3"
 }
 else{
-  display "NO APROBAMOS"
+  display "a distinto de 3"
 }

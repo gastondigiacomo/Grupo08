@@ -32,6 +32,9 @@
 #define NO_ES_IO                        599
 #define ES_DISPLAY                      600
 #define ES_GET                          601
+#define NO_ES_CONECTOR                  699
+#define ES_CONECTOR_OR                  701
+#define ES_CONECTOR_AND                 702
 
 
 
@@ -43,6 +46,8 @@ int contador_variables_aux = 1;
 int contador_etiqueta_cmp = 0;
 int contador_etiqueta_iter = 0;
 char primer_etiqueta[100];
+int existe_or = FALSE;
+int existe_and = FALSE;
 // ********************************************************************************************************
 void generar_assembler();
 void imprimir_header_assembler();
@@ -60,6 +65,10 @@ void escribir_if_asm();
 void escribir_cuerpo_asm();
 void escribir_while_asm();
 void escribir_comparacion_asm(char* izq, char* der, int comparador);
+void escribir_comparacion_or_asm(char* izq, char* der, int comparador);
+void escribir_comparacion_and_asm(char* izq, char* der, int comparador);
+void escribir_or_asm();
+void escribir_and_asm();
 char* obtener_salto(int comparador);
 char* escribir_suma_asm(char* izq, char* der);
 char* escribir_resta_asm(char* izq, char* der);
@@ -73,6 +82,7 @@ int es_operador(char* info_nodo);
 int es_iteracion(char* info_nodo);
 int es_comparador(char* info_nodo);
 int es_io(char* info_nodo);
+int es_conector(char* info_nodo);
 void escribir_asignacion_asm(char* izq, char* der);
 void escribir_asignacion_string_asm(char* izq, char* der);
 
@@ -239,11 +249,22 @@ void resolver_arbol(t_arbol root) {
     
     // A EVALUAR CUANDO TERMINO DE RECORRER EL HIJO IZQUIERDO
     //*************************************************************************************************************
-
     if((valor_switch = es_cuerpo(root->dato)) != NO_ES_CUERPO){
         escribir_cuerpo_asm();
     }
 
+    if((valor_switch = es_conector(root->dato)) != NO_ES_CONECTOR){
+        switch (valor_switch) {
+        case ES_CONECTOR_OR:
+            escribir_or_asm();
+            break;
+        case ES_CONECTOR_AND:
+            escribir_and_asm();
+        default:
+            break;
+        }
+
+    }
     //*************************************************************************************************************
     resolver_arbol(root->der); // LLAMO AL HIJO DERECHO
 
@@ -286,7 +307,15 @@ void resolver_arbol(t_arbol root) {
         }
     } 
     else if((valor_switch = es_comparador(root->dato)) != NO_ES_COMPARADOR){
-        escribir_comparacion_asm(root->izq->dato, root->der->dato, valor_switch);
+        if(existe_or){
+            escribir_comparacion_or_asm(root->izq->dato, root->der->dato, valor_switch);
+        }
+        else if(existe_and){
+            escribir_comparacion_and_asm(root->izq->dato, root->der->dato, valor_switch);
+        }
+        else{
+            escribir_comparacion_asm(root->izq->dato, root->der->dato, valor_switch);
+        }
     } 
     else if((valor_switch = es_iteracion(root->dato)) != NO_ES_ITERACION){
         switch (valor_switch){
@@ -312,6 +341,29 @@ void resolver_arbol(t_arbol root) {
         }
     }
     //*************************************************************************************************************
+}
+
+void escribir_and_asm() {
+    existe_and = TRUE;
+}
+void escribir_or_asm() {
+    char* etiqueta_iteracion = desapilar_iteracion_asm();
+    char etiqueta_iteracion_nueva[100];
+    sprintf(etiqueta_iteracion_nueva, "%s%d", NOMBRE_ETIQUETA_ITERACION, contador_etiqueta_iter);
+    apilar_itearacion_asm(etiqueta_iteracion_nueva);
+    contador_etiqueta_iter++;
+    fprintf(archivo_final_asm, "\tJMP %s\n", etiqueta_iteracion_nueva);
+    fprintf(archivo_final_asm, "%s:\n", etiqueta_iteracion);
+    existe_or = TRUE;
+}
+
+int es_conector(char* info_nodo) {
+    if(strcmp(info_nodo,"OR") == 0)
+        return ES_CONECTOR_OR;
+    else if(strcmp(info_nodo,"AND") == 0)
+        return ES_CONECTOR_AND;
+    else
+        return NO_ES_CONECTOR; 
 }
 
 void escribir_asignacion_string_asm(char* izq, char* der) {
@@ -415,6 +467,36 @@ void escribir_while_asm() {
     fprintf(archivo_final_asm,"%s:\n",etiqueta_iteracion);
 }
 
+void escribir_comparacion_and_asm(char* izq, char* der, int comparador){
+    char* tipo_salto = obtener_salto(comparador);
+    char* etiqueta_iteracion = ver_tope_asm(&pila_iteracion_asm);
+
+    fprintf(archivo_final_asm,"\tFLD %s\n",izq);
+    fprintf(archivo_final_asm,"\tFCOMP %s\n",der);
+    fprintf(archivo_final_asm,"\t%s\n","fstsw ax");
+    fprintf(archivo_final_asm,"\t%s\n","sahf");
+    fprintf(archivo_final_asm,"\t%s %s\n",tipo_salto, etiqueta_iteracion);
+    existe_and = FALSE;
+}
+
+void escribir_comparacion_or_asm(char* izq, char* der, int comparador){
+    char* tipo_salto = obtener_salto(comparador);
+    char* etiqueta_iteracion_desapilada = desapilar_iteracion_asm();
+
+    char etiqueta_iteracion[100];
+    sprintf(etiqueta_iteracion, "%s%d", NOMBRE_ETIQUETA_ITERACION, contador_etiqueta_iter);
+    apilar_itearacion_asm(etiqueta_iteracion);
+    contador_etiqueta_iter++;
+
+    fprintf(archivo_final_asm,"\tFLD %s\n",izq);
+    fprintf(archivo_final_asm,"\tFCOMP %s\n",der);
+    fprintf(archivo_final_asm,"\t%s\n","fstsw ax");
+    fprintf(archivo_final_asm,"\t%s\n","sahf");
+    fprintf(archivo_final_asm,"\t%s %s\n",tipo_salto, etiqueta_iteracion);
+    fprintf(archivo_final_asm,"\t%s %s\n","JMP", etiqueta_iteracion_desapilada);
+    fprintf(archivo_final_asm,"%s:\n",etiqueta_iteracion_desapilada);
+    existe_or = FALSE;
+}
 
 void escribir_comparacion_asm(char* izq, char* der, int comparador) {
     char* tipo_salto = obtener_salto(comparador);

@@ -82,10 +82,14 @@ void apilar(t_arbol* nodo);
 void print2DUtil(t_arbol root, int space);
 void print2D(t_arbol root);
 
-char* desapilar_comparacion_asm();
+
 void vaciar_pila_asm(t_pila_ASM *p);
+
+char* desapilar_comparacion_asm();
 void apilar_comparacion_asm(char* string);
+
 int esPilaVacia(t_pila_ASM *p);
+char* ver_tope_asm(t_pila_ASM *p);
 
 
 void apilar_itearacion_asm(char* string);
@@ -136,6 +140,13 @@ char* desapilar_iteracion_asm(){
     return auxDato;
 }
 
+
+char* ver_tope_asm(t_pila_ASM* p){
+    char* auxDato;
+    auxDato = malloc(sizeof(strlen(pila_iteracion_asm->dato))+1);
+    strcpy(auxDato, (*p)->dato);
+    return auxDato;
+}
 void apilar_itearacion_asm(char* string) {
     p_nodo_ASM* nue = (p_nodo_ASM*) malloc(sizeof(p_nodo_ASM));
     strcpy(nue->dato,string);

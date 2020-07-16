@@ -368,7 +368,8 @@ condicion:
       {
             existe_between = 1;
             between_flag = 1;
-            arbolCondicion = (*crear_hoja("0"));
+            char* cero = guardar_cte_int(0);
+            arbolCondicion = (*crear_hoja(cero));
             arbolCondicion = (*crear_nodo("!=",&id_aux,&arbolCondicion));
             apilar(&arbolCondicion);
       }
@@ -385,7 +386,8 @@ comparacion:
       |expresion
       {
             t_arbol expresion_1 = desapilar();
-            arbolComparacion = (*crear_hoja("0"));
+            char* cero = guardar_cte_int(0);
+            arbolComparacion = (*crear_hoja(cero));
             arbolComparacion = (*crear_nodo("!=",&expresion_1,&arbolComparacion));
             apilar(&arbolComparacion);
       }

@@ -19,10 +19,11 @@ pepe3|float|-|-
 pepe4|float|-|-
 variable_string_1|string|-|-
 variable_string_2|string|-|-
-_cte_string_0|string|"INGRESE UN NUM"|13
-_3|int|3|-
-_10|int|10|-
-_1|int|1|-
 _0|int|0|-
-_cte_string_1|string|"APROBAMOS"|13
-_cte_string_2|string|"NO APROBAMOS"|13
+_4|int|4|-
+_2|int|2|-
+_cte_string_0|string|"ENTRO EN LA OTRA"|13
+_1|int|1|-
+_3|int|3|-
+_cte_string_1|string|"a igual a 3"|13
+_cte_string_2|string|"a distinto de 3"|13
